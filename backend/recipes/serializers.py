@@ -5,16 +5,11 @@ from .models import Recipe, Ingredient, RecipeIngredients
 from users.serializers import UserSerializer
 
 
-
-
-
-
 class IngredientRecipeSerializer(ModelSerializer):
-    ingredient = serializers.IngridientListingField(read_only=True)
 
     class Meta:
         model = RecipeIngredients
-        fields = ('ingredient', 'amount')
+        fields = ('id', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -24,4 +19,3 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = '__all__'
-
