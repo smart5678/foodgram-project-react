@@ -1,3 +1,50 @@
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
-# Create your models here.
+from users.managers import CustomUserManager
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    """
+    Дополненная модель пользователя наследник AbstractBaseUser
+    Добавлены поля role: admin, user
+    email, username - уникальные, username может быть пустым при создании
+    """
+    class Role(models.TextChoices):
+        ADMIN = 'admin', 'admin'
+        USER = 'user', 'user'
+
+    role = models.CharField(
+        'Уровень доступа',
+        max_length=20,
+        choices=Role.choices,
+        default=Role.USER,
+    )
+    username = models.CharField('Имя пользователя', max_length=150,
+                                blank=False, unique=True)
+    first_name = models.CharField('Имя', max_length=150, blank=True)
+    last_name = models.CharField('Фамилия', max_length=150, blank=True)
+    email = models.EmailField('email address', unique=True)
+    is_staff = models.BooleanField('Администраторы', default=False)
+    is_active = models.BooleanField('Активен', default=True)
+    last_login = models.DateTimeField('last login', blank=True, null=True)
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    password = models.CharField('Пароль', max_length=150, blank=True)
+    objects = CustomUserManager()
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.email
+
+    @property
+    def is_admin(self):
+        return self.role == self.Role.ADMIN
+
+    @property
+    def is_user(self):
+        return self.role == self.Role.USER
