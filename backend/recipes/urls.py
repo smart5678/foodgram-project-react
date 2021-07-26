@@ -8,7 +8,7 @@ router = DefaultRouter()
 router.register(
     r'',
     RecipeViewSet,
-    basename='TitleView'
+    basename='RecipeView'
 )
 # router.register(
 #     'genres',

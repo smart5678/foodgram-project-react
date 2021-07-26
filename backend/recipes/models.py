@@ -31,7 +31,7 @@ class Ingredient(models.Model):
         null=False,
         max_length=50
     )
-    unit = models.CharField('Единицы измерения', max_length=10, blank=False)
+    measurement_unit = models.CharField('Единицы измерения', max_length=10, blank=False)
 
     class Meta:
         ordering = ['name']
@@ -39,7 +39,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингридиенты'
 
     def __str__(self):
-        return f'{self.name}, {self.unit}'
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Recipe(models.Model):
@@ -79,7 +79,7 @@ class RecipeIngredients(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipes',
+        related_name='ingredients',
         verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
@@ -89,7 +89,7 @@ class RecipeIngredients(models.Model):
         verbose_name='Ингридиент',
         null=True,
     )
-    quantity = models.FloatField('Количество')
+    amount = models.FloatField('Количество')
 
     class Meta:
         ordering = ['recipe']

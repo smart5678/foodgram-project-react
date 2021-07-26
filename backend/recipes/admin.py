@@ -4,10 +4,10 @@ from .models import Ingredient, Tag, RecipeIngredients, Recipe
 
 @admin.register(RecipeIngredients)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'quantity')
+    list_display = ('recipe', 'ingredient', 'amount')
     list_filter = ('recipe', 'ingredient')
-    fields = (('ingredient', 'quantity'),)
-    list_editable = ('ingredient', 'quantity', )
+    fields = (('ingredient', 'amount'),)
+    list_editable = ('ingredient', 'amount', )
     empty_value_display = '-пусто-'
 
 
@@ -16,8 +16,8 @@ class IngredientAdmin(admin.ModelAdmin):
     """
     Конфигурация отображения модели Ingredient в Админ.панели
     """
-    list_display = ('pk', 'name', 'unit')
-    fields = (('name', 'unit'),)
+    list_display = ('pk', 'name', 'measurement_unit')
+    fields = (('name', 'measurement_unit'),)
     list_filter = ('name',)
     empty_value_display = '-пусто-'
 
