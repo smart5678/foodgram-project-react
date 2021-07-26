@@ -8,7 +8,8 @@ class Tag(models.Model):
     """
     Модель тэгов рецепта
     """
-    hex_code = models.CharField('Цветовой HEX-код', max_length=7)
+    name = models.CharField('Название', max_length=200)
+    color = models.CharField('Цвет в HEX', max_length=200, blank=True)
     slug = models.SlugField(unique=True)
 
     class Meta:
@@ -17,7 +18,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Тэги'
 
     def __str__(self):
-        return f'{self.slug} - HEX {self.hex_code}'
+        return f'{self.slug} - HEX {self.color}'
 
 
 class Ingredient(models.Model):
@@ -29,9 +30,13 @@ class Ingredient(models.Model):
         unique=True,
         blank=False,
         null=False,
-        max_length=50
+        max_length=200
     )
-    measurement_unit = models.CharField('Единицы измерения', max_length=10, blank=False)
+    measurement_unit = models.CharField(
+        'Единицы измерения',
+        max_length=200,
+        blank=False
+    )
 
     class Meta:
         ordering = ['name']
@@ -60,11 +65,19 @@ class Recipe(models.Model):
         verbose_name='Автор рецепта'
     )
     tags = models.ManyToManyField(
-        Tag, verbose_name='Тэги', related_name="recipes", blank=True
+        Tag,
+        verbose_name='Тэги',
+        related_name="recipes",
+        blank=True
     )
     name = models.CharField('Название', max_length=200)
-    description = models.TextField('Описание')
-    cooking_time = models.DurationField('Время приготовления')
+    text = models.TextField('Описание')
+    cooking_time = models.DurationField('Время приготовления (в минутах)')
+
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='RecipeIngredients',
+    )
 
     class Meta:
         ordering = ['name']
@@ -75,30 +88,22 @@ class Recipe(models.Model):
         return self.name
 
 
+### https://stackoverflow.com/questions/28706072/drf-3-creating-many-to-many-update-create-serializer-with-though-table
 class RecipeIngredients(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredients',
-        verbose_name='Рецепт'
+        related_name='recipe'
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.SET_NULL,
-        # related_name='ingredient',
-        verbose_name='Ингридиент',
-        null=True,
+        on_delete=models.CASCADE,
+        related_name='ingredient'
     )
-    amount = models.FloatField('Количество')
+    amount = models.FloatField('Количество в рецепте')
 
     class Meta:
-        ordering = ['recipe']
-        verbose_name = f'Ингридиент для рецепта'
-        verbose_name_plural = f'Ингридиенты для рецепта'
         constraints = [models.UniqueConstraint(
             fields=['recipe', 'ingredient'],
             name='recipe-ingredient'
         ), ]
-
-    def __str__(self):
-        return f'{self.ingredient} для {self.recipe}'
