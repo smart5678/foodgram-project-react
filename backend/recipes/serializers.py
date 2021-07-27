@@ -5,23 +5,24 @@ from .models import Recipe, Ingredient, RecipeIngredients
 from users.serializers import UserSerializer
 
 
-
-
-
-
 class IngredientRecipeSerializer(ModelSerializer):
-    ingredient = serializers.IngridientListingField(read_only=True)
 
     class Meta:
         model = RecipeIngredients
-        fields = ('ingredient', 'amount')
+        fields = '__all__'
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class IngredientSerializer(ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = '__all__'
+
+
+class RecipeSerializer(ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientRecipeSerializer(many=True, read_only=True)
+    ingredients = IngredientSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
         fields = '__all__'
-
