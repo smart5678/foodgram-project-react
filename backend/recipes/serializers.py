@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
-from .models import Recipe, Ingredient, RecipeIngredients
+from .models import Recipe, Ingredient, RecipeIngredients, Tag
 from users.serializers import UserSerializer
 
 
@@ -41,13 +41,6 @@ class RecipeSerializer(ModelSerializer):
         model = Recipe
         fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients')
 
-    def to_internal_value(self, data):
-        """Добавляем работу с полями ингридиентов"""
-        ingredients_internal = data.pop('ingredients')
-        validated_data =super().validate(data)
-        validated_data['ingredients'] = ingredients_internal
-        return data
-
     def update(self, instance, validated_data):
         self.instance.ingredients.all().delete()
         ingredients = validated_data.pop('ingredients')
@@ -64,21 +57,32 @@ class RecipeSerializer(ModelSerializer):
     def create(self, validated_data):
         """
         Модифицированный create для сохранения связанных записей
+        Рецепт содается, только при наличии всех ингедиентов
+        !!!Доделть теги!!!
         """
         ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
         validated_data['author'] = self.context['request'].user
-        recipe = Recipe(**validated_data)
-        recipe_ingredients = []
+        recipe = super().create(validated_data)
         for ingredient in ingredients:
-            recipe_ingredients.append(
-                RecipeIngredients(
-                    recipe=recipe,
-                    ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
-                    amount=ingredient['amount']
-                )
+            RecipeIngredients.objects.create(
+                recipe=recipe,
+                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                amount=ingredient['amount']
             )
-        recipe.save()
-        RecipeIngredients.objects.bulk_create(recipe_ingredients)
-        recipe.tags.set(tags)
         return recipe
+
+    def validate(self, data):
+        ingredients_internal = self.initial_data['ingredients']
+        tags = data['tags']
+        for tag in tags:
+            if not Tag.objects.filter(pk=tag.pk).exists():
+                raise serializers.ValidationError(f'Тэга id={tag} нет')
+        for ingredient in ingredients_internal:
+            if not Ingredient.objects.filter(pk=ingredient['id']).exists():
+                raise serializers.ValidationError(f'Нет ингредиента id={ingredient["id"]}')
+
+        validated_data =super().validate(data)
+        validated_data['ingredients'] = ingredients_internal
+        return validated_data
+
+
