@@ -10,7 +10,7 @@ class IngredientSerializer(ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit')
 
 
 class IngredientRecipeSerializer(ModelSerializer):
@@ -21,7 +21,10 @@ class IngredientRecipeSerializer(ModelSerializer):
         fields = ('id', 'ingredient', 'amount')
 
     def to_representation(self, instance):
-        """Добавляем поля ингредиента в отображение рецепта"""
+        """
+        Добавляем поля ингредиента в отображение рецепта
+        Будет также переписан id ингредиента вместо id ReceptIngredient
+        """
         representation = super().to_representation(instance)
         ingredient_representation = representation.pop('ingredient')
         for key in ingredient_representation:
@@ -61,27 +64,19 @@ class RecipeSerializer(ModelSerializer):
         fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients')
 
     def to_internal_value(self, data):
-        """Выносим поля ингредиента в отдельный словарь"""
+        """Добавляем работу с полями ингридиентов"""
         ingredients_internal = {}
         ingredients_internal = data.pop('ingredients')
         print(ingredients_internal)
+        self.instance.ingredients.all().delete()
+
         for ingredient_internal in ingredients_internal:
-            print(ingredient_internal)
-            recipe_ingredient, created = RecipeIngredients.objects.get_or_create(
+            recipe_ingredient = RecipeIngredients.objects.create(
                 recipe=self.instance,
-                ingredient=get_object_or_404(Ingredient, name=ingredient_internal['name']),
+                ingredient=get_object_or_404(Ingredient, pk=ingredient_internal['id']),
+                amount=ingredient_internal['amount']
             )
-            print(created)
-            recipe_ingredient.amount = ingredient_internal['amount']
             recipe_ingredient.save()
-        # ingredient_internal = {}
-        # print(data['ingredients'])
-        # for key in IngredientRecipeSerializer.Meta.fields:
-        #     if key in data['ingredients']:
-        #         ingredient_internal[key] = data['ingredients'].pop(key)
-        # internal = super().to_internal_value(data)
-        # print(ingredient_internal)
-        # internal['ingredients'] = ingredient_internal
         return data
 
     def update(self, instance, validated_data):
