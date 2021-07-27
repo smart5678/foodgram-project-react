@@ -52,7 +52,7 @@ class Recipe(models.Model):
         'Время приготовления (в минутах)',
         validators=[
             MinValueValidator(1, 'Быстрее не получится'),
-            integer_validator(message='Должно быть целым числом')
+            integer_validator
         ]
     )
 
@@ -63,37 +63,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class RecipeIngredients(models.Model):
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='ingredients',
-        verbose_name='Рецепт'
-    )
-
-    ingredient = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-        related_name='recipe',
-        verbose_name='Ингридиент'
-    )
-    amount = models.IntegerField(
-        'Количество в рецепте',
-        validators=[
-            MinValueValidator(1, message='Добавьте количество'),
-            integer_validator(message='Должно быть целым числом')
-        ]
-    )
-
-    class Meta:
-        constraints = [models.UniqueConstraint(
-            fields=['recipe', 'ingredient'],
-            name='recipe-ingredients'
-        ), ]
-        verbose_name = 'Ингридиент в рецепте'
-        verbose_name_plural = 'Ингридиенты в рецепте'
 
 
 class Ingredient(models.Model):
@@ -121,3 +90,34 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}'
+
+
+class RecipeIngredients(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='ingredients',
+        verbose_name='Рецепт'
+    )
+
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='recipe',
+        verbose_name='Ингридиент'
+    )
+    amount = models.IntegerField(
+        'Количество в рецепте',
+        validators=[
+            MinValueValidator(1, message='Добавьте количество'),
+            integer_validator
+        ]
+    )
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['recipe', 'ingredient'],
+            name='recipe-ingredients'
+        ), ]
+        verbose_name = 'Ингридиент в рецепте'
+        verbose_name_plural = 'Ингридиенты в рецепте'
