@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator, \
+    integer_validator
 from django.db import models
 
 USER = get_user_model()
@@ -19,32 +21,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return f'{self.slug} - HEX {self.color}'
-
-
-class Ingredient(models.Model):
-    """
-    Ингридиенты
-    """
-    name = models.CharField(
-        'Название',
-        unique=True,
-        blank=False,
-        null=False,
-        max_length=200
-    )
-    measurement_unit = models.CharField(
-        'Единицы измерения',
-        max_length=200,
-        blank=False
-    )
-
-    class Meta:
-        ordering = ['name']
-        verbose_name = 'Ингридиент'
-        verbose_name_plural = 'Ингридиенты'
-
-    def __str__(self):
-        return f'{self.name}, {self.measurement_unit}'
 
 
 class Recipe(models.Model):
@@ -72,11 +48,12 @@ class Recipe(models.Model):
     )
     name = models.CharField('Название', max_length=200)
     text = models.TextField('Описание')
-    cooking_time = models.DurationField('Время приготовления (в минутах)')
-
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        through='RecipeIngredients',
+    cooking_time = models.IntegerField(
+        'Время приготовления (в минутах)',
+        validators=[
+            MinValueValidator(1, 'Быстрее не получится'),
+            integer_validator(message='Должно быть целым числом')
+        ]
     )
 
     class Meta:
@@ -88,22 +65,59 @@ class Recipe(models.Model):
         return self.name
 
 
-### https://stackoverflow.com/questions/28706072/drf-3-creating-many-to-many-update-create-serializer-with-though-table
 class RecipeIngredients(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe'
+        related_name='ingredients',
+        verbose_name='Рецепт'
     )
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredient'
+        related_name='recipe',
+        verbose_name='Ингридиент'
     )
-    amount = models.FloatField('Количество в рецепте')
+    amount = models.IntegerField(
+        'Количество в рецепте',
+        validators=[
+            MinValueValidator(1, message='Добавьте количество'),
+            integer_validator(message='Должно быть целым числом')
+        ]
+    )
 
     class Meta:
         constraints = [models.UniqueConstraint(
             fields=['recipe', 'ingredient'],
-            name='recipe-ingredient'
+            name='recipe-ingredients'
         ), ]
+        verbose_name = 'Ингридиент в рецепте'
+        verbose_name_plural = 'Ингридиенты в рецепте'
+
+
+class Ingredient(models.Model):
+    """
+    Ингридиенты
+    """
+
+    name = models.CharField(
+        'Название',
+        unique=True,
+        blank=False,
+        null=False,
+        max_length=200
+    )
+    measurement_unit = models.CharField(
+        'Единицы измерения',
+        max_length=200,
+        blank=False
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Ингридиент'
+        verbose_name_plural = 'Ингридиенты'
+
+    def __str__(self):
+        return f'{self.name}, {self.measurement_unit}'
