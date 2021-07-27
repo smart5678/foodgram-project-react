@@ -1,5 +1,5 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 from rest_framework.serializers import ModelSerializer
 
 from .models import Recipe, Ingredient, RecipeIngredients
@@ -23,7 +23,8 @@ class IngredientRecipeSerializer(ModelSerializer):
     def to_representation(self, instance):
         """
         Добавляем поля ингредиента в отображение рецепта
-        Будет также переписан id ингредиента вместо id ReceptIngredient
+        Будет также переписан id ингредиента вместо id RecipeIngredient
+        Можно изменить, если в IngredientSerializer.Meta.fields убрать id
         """
         representation = super().to_representation(instance)
         ingredient_representation = representation.pop('ingredient')
@@ -31,29 +32,6 @@ class IngredientRecipeSerializer(ModelSerializer):
             representation[key] = ingredient_representation[key]
         return representation
     
-    # def to_internal_value(self, data):
-    #     """Выносим поля ингредиента в отдельный словарь"""
-    #     print(self.initial_data)
-    #     ingredient_internal = {}
-    #     for key in IngredientSerializer.Meta.fields:
-    #         if key in data:
-    #             ingredient_internal[key] = data.pop[key]
-    #     internal = super().to_internal_value(data)
-    #     internal['ingredient'] = ingredient_internal
-    #     return internal
-    #
-    # def update(self, instance, validated_data):
-    #     """Обновление рецепта и количества ингредиентов"""
-    #     ingredient_data = validated_data.pop('ingredients')
-    #     print(ingredient_data)
-    #     super().update(instance, validated_data)
-    #
-    #     ingredient = instance.ingredient
-    #     for attr, value in ingredient_data.items():
-    #
-    #         setattr(ingredient, attr, value)
-    #     ingredient.save()
-        
 
 class RecipeSerializer(ModelSerializer):
     author = UserSerializer(default=serializers.CurrentUserDefault())
@@ -65,21 +43,42 @@ class RecipeSerializer(ModelSerializer):
 
     def to_internal_value(self, data):
         """Добавляем работу с полями ингридиентов"""
-        ingredients_internal = {}
         ingredients_internal = data.pop('ingredients')
-        print(ingredients_internal)
-        self.instance.ingredients.all().delete()
-
-        for ingredient_internal in ingredients_internal:
-            recipe_ingredient = RecipeIngredients.objects.create(
-                recipe=self.instance,
-                ingredient=get_object_or_404(Ingredient, pk=ingredient_internal['id']),
-                amount=ingredient_internal['amount']
-            )
-            recipe_ingredient.save()
+        validated_data =super().validate(data)
+        validated_data['ingredients'] = ingredients_internal
         return data
 
     def update(self, instance, validated_data):
-        print(validated_data)
+        self.instance.ingredients.all().delete()
+        ingredients = validated_data.pop('ingredients')
+        for ingredient in ingredients:
+            recipe_ingredient = RecipeIngredients.objects.create(
+                recipe=self.instance,
+                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                amount=ingredient['amount']
+            )
+            recipe_ingredient.save()
         super().update(instance, validated_data)
         return instance
+
+    def create(self, validated_data):
+        """
+        Модифицированный create для сохранения связанных записей
+        """
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        validated_data['author'] = self.context['request'].user
+        recipe = Recipe(**validated_data)
+        recipe_ingredients = []
+        for ingredient in ingredients:
+            recipe_ingredients.append(
+                RecipeIngredients(
+                    recipe=recipe,
+                    ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                    amount=ingredient['amount']
+                )
+            )
+        recipe.save()
+        RecipeIngredients.objects.bulk_create(recipe_ingredients)
+        recipe.tags.set(tags)
+        return recipe
