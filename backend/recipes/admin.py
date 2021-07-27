@@ -4,9 +4,9 @@ from .models import Ingredient, Tag, RecipeIngredients, Recipe
 
 @admin.register(RecipeIngredients)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'amount')
+    list_display = ('pk', 'recipe', 'ingredient', 'amount')
     list_filter = ('recipe', 'ingredient')
-    fields = (('recipe',),('ingredient', 'amount'))
+    fields = (('recipe',), ('ingredient', 'amount'))
     list_editable = ('ingredient', 'amount', )
     empty_value_display = '-пусто-'
 
@@ -28,7 +28,7 @@ class TagAdmin(admin.ModelAdmin):
     """
     Конфигурация отображения модели Tag в Админ.панели
     """
-    list_display = ('name', 'slug', 'color')
+    list_display = ('pk', 'name', 'slug', 'color')
     list_editable = ('slug', 'color')
     empty_value_display = '-пусто-'
 
@@ -48,7 +48,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'cooking_time',
         'text',
     )
-    list_display = ('name', 'author')
+    list_display = ('pk', 'name', 'author')
     list_filter = ('author', 'name', 'tags')
     inlines = [IngredientInline]
     empty_value_display = '-пусто-'

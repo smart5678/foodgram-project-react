@@ -30,7 +30,7 @@ class Recipe(models.Model):
     author: автор рецепта
     name: Название рецепта
     description: Описание
-    ingredients: ингридиенты
+    ingredients: ингредиенты
     tags: тэги
     cooking_time: время приготовления
     """
@@ -67,7 +67,7 @@ class Recipe(models.Model):
 
 class Ingredient(models.Model):
     """
-    Ингридиенты
+    Ингредиенты
     """
 
     name = models.CharField(
@@ -85,8 +85,8 @@ class Ingredient(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Ингридиент'
-        verbose_name_plural = 'Ингридиенты'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}'
@@ -104,7 +104,7 @@ class RecipeIngredients(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         related_name='recipe',
-        verbose_name='Ингридиент'
+        verbose_name='Ингредиент'
     )
     amount = models.IntegerField(
         'Количество в рецепте',
@@ -115,9 +115,9 @@ class RecipeIngredients(models.Model):
     )
 
     class Meta:
-        constraints = [models.UniqueConstraint(
-            fields=['recipe', 'ingredient'],
-            name='recipe-ingredients'
-        ), ]
-        verbose_name = 'Ингридиент в рецепте'
-        verbose_name_plural = 'Ингридиенты в рецепте'
+        # constraints = [models.UniqueConstraint(
+        #     fields=['recipe', 'ingredient'],
+        #     name='recipe-ingredients'
+        # ), ]
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
