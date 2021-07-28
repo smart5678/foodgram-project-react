@@ -18,3 +18,13 @@ services:
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
     extra_hosts:
       - host.docker.internal:host-gateway
+
+  web:
+    image: smart5678/yamdb_final:latest
+    volumes:
+      - static_value:/code/static/
+      - media_value:/code/media/
+    depends_on:
+      - nginx
+    env_file:
+      - ./.env 
