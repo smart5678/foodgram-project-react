@@ -1,8 +1,8 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 from rest_framework.serializers import ModelSerializer
 
-from .models import Recipe, Ingredient, RecipeIngredients
+from .models import Recipe, Ingredient, RecipeIngredients, Tag
 from users.serializers import UserSerializer
 
 
@@ -10,7 +10,7 @@ class IngredientSerializer(ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit')
 
 
 class IngredientRecipeSerializer(ModelSerializer):
@@ -21,36 +21,17 @@ class IngredientRecipeSerializer(ModelSerializer):
         fields = ('id', 'ingredient', 'amount')
 
     def to_representation(self, instance):
-        """Добавляем поля ингредиента в отображение рецепта"""
+        """
+        Добавляем поля ингредиента в отображение рецепта
+        Будет также переписан id ингредиента вместо id RecipeIngredient
+        Можно изменить, если в IngredientSerializer.Meta.fields убрать id
+        """
         representation = super().to_representation(instance)
         ingredient_representation = representation.pop('ingredient')
         for key in ingredient_representation:
             representation[key] = ingredient_representation[key]
         return representation
     
-    # def to_internal_value(self, data):
-    #     """Выносим поля ингредиента в отдельный словарь"""
-    #     print(self.initial_data)
-    #     ingredient_internal = {}
-    #     for key in IngredientSerializer.Meta.fields:
-    #         if key in data:
-    #             ingredient_internal[key] = data.pop[key]
-    #     internal = super().to_internal_value(data)
-    #     internal['ingredient'] = ingredient_internal
-    #     return internal
-    #
-    # def update(self, instance, validated_data):
-    #     """Обновление рецепта и количества ингредиентов"""
-    #     ingredient_data = validated_data.pop('ingredients')
-    #     print(ingredient_data)
-    #     super().update(instance, validated_data)
-    #
-    #     ingredient = instance.ingredient
-    #     for attr, value in ingredient_data.items():
-    #
-    #         setattr(ingredient, attr, value)
-    #     ingredient.save()
-        
 
 class RecipeSerializer(ModelSerializer):
     author = UserSerializer(default=serializers.CurrentUserDefault())
@@ -60,31 +41,48 @@ class RecipeSerializer(ModelSerializer):
         model = Recipe
         fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients')
 
-    def to_internal_value(self, data):
-        """Выносим поля ингредиента в отдельный словарь"""
-        ingredients_internal = {}
-        ingredients_internal = data.pop('ingredients')
-        print(ingredients_internal)
-        for ingredient_internal in ingredients_internal:
-            print(ingredient_internal)
-            recipe_ingredient, created = RecipeIngredients.objects.get_or_create(
-                recipe=self.instance,
-                ingredient=get_object_or_404(Ingredient, name=ingredient_internal['name']),
-            )
-            print(created)
-            recipe_ingredient.amount = ingredient_internal['amount']
-            recipe_ingredient.save()
-        # ingredient_internal = {}
-        # print(data['ingredients'])
-        # for key in IngredientRecipeSerializer.Meta.fields:
-        #     if key in data['ingredients']:
-        #         ingredient_internal[key] = data['ingredients'].pop(key)
-        # internal = super().to_internal_value(data)
-        # print(ingredient_internal)
-        # internal['ingredients'] = ingredient_internal
-        return data
-
     def update(self, instance, validated_data):
-        print(validated_data)
+        self.instance.ingredients.all().delete()
+        ingredients = validated_data.pop('ingredients')
+        for ingredient in ingredients:
+            recipe_ingredient = RecipeIngredients.objects.create(
+                recipe=self.instance,
+                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                amount=ingredient['amount']
+            )
+            recipe_ingredient.save()
         super().update(instance, validated_data)
         return instance
+
+    def create(self, validated_data):
+        """
+        Модифицированный create для сохранения связанных записей
+        Рецепт содается, только при наличии всех ингедиентов
+        !!!Доделть теги!!!
+        """
+        ingredients = validated_data.pop('ingredients')
+        validated_data['author'] = self.context['request'].user
+        recipe = super().create(validated_data)
+        for ingredient in ingredients:
+            RecipeIngredients.objects.create(
+                recipe=recipe,
+                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                amount=ingredient['amount']
+            )
+        return recipe
+
+    def validate(self, data):
+        ingredients_internal = self.initial_data['ingredients']
+        tags = data['tags']
+        for tag in tags:
+            if not Tag.objects.filter(pk=tag.pk).exists():
+                raise serializers.ValidationError(f'Тэга id={tag} нет')
+        for ingredient in ingredients_internal:
+            if not Ingredient.objects.filter(pk=ingredient['id']).exists():
+                raise serializers.ValidationError(f'Нет ингредиента id={ingredient["id"]}')
+
+        validated_data =super().validate(data)
+        validated_data['ingredients'] = ingredients_internal
+        return validated_data
+
+
