@@ -11,8 +11,8 @@ from rest_framework.viewsets import GenericViewSet
 from users.permissions import (AdminModeratorAuthorOrReadOnly,
                                   IsAdminOrReadOnly)
 
-from .models import Recipe
-from .serializers import (RecipeSerializer, )
+from .models import Recipe, Tag, Ingredient
+from .serializers import (RecipeSerializer, TagSerializer, IngredientSerializer)
 
 USER = get_user_model()
 
@@ -25,4 +25,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = PageNumberPagination
     queryset = Recipe.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet для работы с тэгами
+    """
+    model = Tag
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
+    pagination_class = None
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class IngredientViewSet(viewsets.ModelViewSet):
+    model = Ingredient
+    serializer_class = IngredientSerializer
+    queryset = Ingredient.objects.all()
+    pagination_class = None
     permission_classes = [IsAuthenticatedOrReadOnly]

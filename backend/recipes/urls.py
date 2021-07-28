@@ -1,25 +1,25 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import RecipeViewSet
+from .views import RecipeViewSet, TagViewSet, IngredientViewSet
 
 router = DefaultRouter()
 
 router.register(
-    r'',
+    r'recipes',
     RecipeViewSet,
     basename='RecipeView'
 )
-# router.register(
-#     'genres',
-#     GenreViewSet,
-#     basename='GenreView'
-# )
-# router.register(
-#     'categories',
-#     CategoryViewSet,
-#     basename='CategoryView'
-# )
+router.register(
+    'tags',
+    TagViewSet,
+    basename='TagView'
+)
+router.register(
+    'ingredients',
+    IngredientViewSet,
+    basename='CategoryView'
+)
 # router.register(
 #     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
 #     CommentViewSet,

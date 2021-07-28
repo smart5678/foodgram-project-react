@@ -86,3 +86,9 @@ class RecipeSerializer(ModelSerializer):
         return validated_data
 
 
+class TagSerializer(ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = '__all__'
+
