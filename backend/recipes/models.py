@@ -1,5 +1,3 @@
-from email.policy import default
-
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator, \
     integer_validator
@@ -58,6 +56,8 @@ class Recipe(models.Model):
         ],
         blank=False
     )
+    image = models.ImageField(upload_to='images/', blank=False, null=True)
+
 
     class Meta:
         ordering = ['name']

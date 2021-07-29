@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from social_django.models import Partial
 
 from .models import Recipe, Ingredient, RecipeIngredients, Tag
 from users.serializers import UserSerializer
@@ -45,11 +44,11 @@ class RecipeSerializer(ModelSerializer):
     author = UserSerializer(default=serializers.CurrentUserDefault())
     ingredients = IngredientRecipeSerializer(many=True, read_only=True, partial=False)
     tags = TagSerializer(many=True, read_only=True, partial=False)
+    # image = Base64ImageField(represent_in_base64=False)
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients')
-        read_only_fields = ['tags', 'ingredients']
+        fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients', 'image')
 
     def update(self, instance, validated_data):
         self.instance.ingredients.all().delete()
