@@ -32,7 +32,7 @@ class IngredientRecipeSerializer(ModelSerializer):
         for key in ingredient_representation:
             representation[key] = ingredient_representation[key]
         return representation
-    
+
 
 class TagSerializer(ModelSerializer):
 
@@ -43,12 +43,13 @@ class TagSerializer(ModelSerializer):
 
 class RecipeSerializer(ModelSerializer):
     author = UserSerializer(default=serializers.CurrentUserDefault())
-    ingredients = IngredientRecipeSerializer(many=True, partial=False)
-    tags = TagSerializer(many=True, partial=False)
+    ingredients = IngredientRecipeSerializer(many=True, read_only=True, partial=False)
+    tags = TagSerializer(many=True, read_only=True, partial=False)
 
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients')
+        read_only_fields = ['tags', 'ingredients']
 
     def update(self, instance, validated_data):
         self.instance.ingredients.all().delete()
@@ -56,8 +57,8 @@ class RecipeSerializer(ModelSerializer):
         for ingredient in ingredients:
             recipe_ingredient = RecipeIngredients.objects.create(
                 recipe=self.instance,
-                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
-                amount=ingredient['amount']
+                ingredient=get_object_or_404(Ingredient, pk=ingredient['ingredient']['id']),
+                amount=ingredient['ingredient']['amount']
             )
             recipe_ingredient.save()
         super().update(instance, validated_data)
@@ -75,25 +76,23 @@ class RecipeSerializer(ModelSerializer):
         for ingredient in ingredients:
             RecipeIngredients.objects.create(
                 recipe=recipe,
-                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
-                amount=ingredient['amount']
+                ingredient=get_object_or_404(Ingredient, pk=ingredient['ingredient']['id']),
+                amount=ingredient['ingredient']['amount']
             )
         return recipe
 
-    def validate(self, data):
-        ingredients_internal = self.initial_data['ingredients']
-        tags = data['tags']
-        for tag in tags:
-            if not Tag.objects.filter(pk=tag.pk).exists():
-                raise serializers.ValidationError(f'Тэга id={tag} нет')
-        for ingredient in ingredients_internal:
-            if not Ingredient.objects.filter(pk=ingredient['id']).exists():
-                raise serializers.ValidationError(f'Нет ингредиента id={ingredient["id"]}')
-
-        validated_data =super().validate(data)
-        validated_data['ingredients'] = ingredients_internal
-        return validated_data
-
-
+    def to_internal_value(self, data):
+        """
+        Добавляем поля ингредиента в отображение рецепта
+        Будет также переписан id ингредиента вместо id RecipeIngredient
+        Можно изменить, если в IngredientSerializer.Meta.fields убрать id
+        """
+        ingredients = data.pop('ingredients')
+        ingredients_internal = []
+        for ingredient in ingredients:
+            ingredients_internal.append({"ingredient": ingredient})
+        internal_data = data
+        internal_data['ingredients'] = ingredients_internal
+        return internal_data
 
 
