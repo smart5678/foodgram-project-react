@@ -1,4 +1,7 @@
 from django.shortcuts import get_object_or_404
+import base64
+
+from django.core.files.base import ContentFile
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
@@ -44,7 +47,6 @@ class RecipeSerializer(ModelSerializer):
     author = UserSerializer(default=serializers.CurrentUserDefault())
     ingredients = IngredientRecipeSerializer(many=True, read_only=True, partial=False)
     tags = TagSerializer(many=True, read_only=True, partial=False)
-    # image = Base64ImageField(represent_in_base64=False)
 
     class Meta:
         model = Recipe
@@ -87,11 +89,20 @@ class RecipeSerializer(ModelSerializer):
         Можно изменить, если в IngredientSerializer.Meta.fields убрать id
         """
         ingredients = data.pop('ingredients')
+        image = data.pop('image')
+
+        internal_data = data
+
+        format, imgstr = image.split(';base64,')  # format ~= data:image/X,
+        ext = format.split('/')[-1]  # guess file extension
+        image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
         ingredients_internal = []
         for ingredient in ingredients:
             ingredients_internal.append({"ingredient": ingredient})
-        internal_data = data
+
         internal_data['ingredients'] = ingredients_internal
+        internal_data['image'] = image
         return internal_data
 
 
