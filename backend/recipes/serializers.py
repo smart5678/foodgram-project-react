@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+from social_django.models import Partial
 
 from .models import Recipe, Ingredient, RecipeIngredients, Tag
 from users.serializers import UserSerializer
@@ -33,9 +34,17 @@ class IngredientRecipeSerializer(ModelSerializer):
         return representation
     
 
+class TagSerializer(ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = '__all__'
+
+
 class RecipeSerializer(ModelSerializer):
     author = UserSerializer(default=serializers.CurrentUserDefault())
-    ingredients = IngredientRecipeSerializer(many=True, read_only=True, partial=False)
+    ingredients = IngredientRecipeSerializer(many=True, partial=False)
+    tags = TagSerializer(many=True, partial=False)
 
     class Meta:
         model = Recipe
@@ -86,9 +95,5 @@ class RecipeSerializer(ModelSerializer):
         return validated_data
 
 
-class TagSerializer(ModelSerializer):
 
-    class Meta:
-        model = Tag
-        fields = '__all__'
 

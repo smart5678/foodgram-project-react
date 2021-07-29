@@ -1,3 +1,5 @@
+from email.policy import default
+
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator, \
     integer_validator
@@ -10,9 +12,9 @@ class Tag(models.Model):
     """
     Модель тэгов рецепта
     """
-    name = models.CharField('Название', max_length=200)
-    color = models.CharField('Цвет в HEX', max_length=200, blank=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField('Название', max_length=200, unique=True)
+    color = models.CharField('Цвет в HEX', max_length=200, unique=True)
+    slug = models.SlugField(unique=True,)
 
     class Meta:
         ordering = ['slug']
@@ -44,23 +46,23 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Тэги',
         related_name="recipes",
-        blank=True
+        blank=False
     )
-    name = models.CharField('Название', max_length=200)
-    text = models.TextField('Описание')
+    name = models.CharField('Название', max_length=200, blank=False)
+    text = models.TextField('Описание', blank=False)
     cooking_time = models.IntegerField(
         'Время приготовления (в минутах)',
         validators=[
             MinValueValidator(1, 'Быстрее не получится'),
             integer_validator
-        ]
+        ],
+        blank=False
     )
 
     class Meta:
         ordering = ['name']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-
 
     def __str__(self):
         return self.name
@@ -107,13 +109,7 @@ class RecipeIngredients(models.Model):
         related_name='recipe',
         verbose_name='Ингредиент'
     )
-    amount = models.IntegerField(
-        'Количество в рецепте',
-        validators=[
-            MinValueValidator(1, message='Добавьте количество'),
-            integer_validator
-        ]
-    )
+    amount = models.IntegerField('Количество в рецепте', blank=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(
