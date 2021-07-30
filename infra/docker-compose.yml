@@ -33,8 +33,8 @@ services:
     build: ../backend/.
     restart: always
     command: python /code/manage.py runserver 0:8000
-    ports:
-      - "8000:8000"
+#    ports:
+#      - "8000:8000"
     volumes:
       - static_value:/code/static/
       - media_value:/code/media/

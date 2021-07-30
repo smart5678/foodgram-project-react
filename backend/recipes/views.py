@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, filters
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly
@@ -24,8 +24,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     model = Recipe
     serializer_class = RecipeSerializer
     pagination_class = PageNumberPagination
-    queryset = Recipe.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = Recipe.objects.all()
+        tags = self.request.query_params.getlist('tags')
+        if tags:
+            queryset = queryset.filter(tags__slug__in=tags)
+        return queryset
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -45,3 +51,5 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     pagination_class = None
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)

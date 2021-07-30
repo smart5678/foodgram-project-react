@@ -84,25 +84,23 @@ class RecipeSerializer(ModelSerializer):
 
     def to_internal_value(self, data):
         """
-        Добавляем поля ингредиента в отображение рецепта
-        Будет также переписан id ингредиента вместо id RecipeIngredient
-        Можно изменить, если в IngredientSerializer.Meta.fields убрать id
+
         """
         ingredients = data.pop('ingredients')
-        image = data.pop('image')
 
         internal_data = data
-
-        format, imgstr = image.split(';base64,')  # format ~= data:image/X,
-        ext = format.split('/')[-1]  # guess file extension
-        image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+        if self.context.get('request').method in ['PUT', 'POST']:
+            image = internal_data.pop('image')
+            format, imgstr = image.split(';base64,')  # format ~= data:image/X,
+            ext = format.split('/')[-1]  # guess file extension
+            image_file = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+            internal_data['image'] = image_file
 
         ingredients_internal = []
         for ingredient in ingredients:
             ingredients_internal.append({"ingredient": ingredient})
-
         internal_data['ingredients'] = ingredients_internal
-        internal_data['image'] = image
+
         return internal_data
 
 

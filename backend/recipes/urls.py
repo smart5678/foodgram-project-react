@@ -8,7 +8,7 @@ router = DefaultRouter()
 router.register(
     r'recipes',
     RecipeViewSet,
-    basename='RecipeView'
+    basename='recipes'
 )
 router.register(
     'tags',
