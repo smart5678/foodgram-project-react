@@ -18,6 +18,12 @@ from .serializers import (RecipeSerializer, TagSerializer, IngredientSerializer)
 USER = get_user_model()
 
 
+class RecipeFilterBackend(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+
+        return queryset.filter(owner=request.user)
+
+
 class RecipeViewSet(viewsets.ModelViewSet):
     """
     ViewSet для работы с комментариями
