@@ -69,7 +69,6 @@ class RecipeSerializer(ModelSerializer):
         """
         Модифицированный create для сохранения связанных записей
         Рецепт содается, только при наличии всех ингедиентов
-        !!!Доделть теги!!!
         """
         ingredients = validated_data.pop('ingredients')
         validated_data['author'] = self.context['request'].user

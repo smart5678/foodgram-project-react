@@ -1,3 +1,4 @@
+import django_filters
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -25,13 +26,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
+    #queryset = Recipe.objects.all().order_by('-pk')
 
     def get_queryset(self):
-        queryset = Recipe.objects.all()
+        #queryset = Recipe.objects.all().order_by('-pk')
         tags = self.request.query_params.getlist('tags')
         if tags:
-            queryset = queryset.filter(tags__slug__in=tags)
-        return queryset
+            return Recipe.objects.all().order_by('-pk').filter(tags__slug__in=tags).distinct()
+        return Recipe.objects.all().order_by('-pk')
 
 
 class TagViewSet(viewsets.ModelViewSet):

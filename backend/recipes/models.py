@@ -75,7 +75,7 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         'Название',
-        unique=True,
+        #unique=True,
         blank=False,
         null=False,
         max_length=200
