@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'djoser',
     'recipes',
     'users',
+    'social',
     #'debug_toolbar',
 ]
 

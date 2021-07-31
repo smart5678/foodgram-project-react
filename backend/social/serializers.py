@@ -4,10 +4,7 @@ from rest_framework import serializers
 USER = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор пользователя на основе модели
-    """
+class SubscriberSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     def get_is_subscribed(self, USER):
@@ -23,4 +20,3 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed'
         )
-

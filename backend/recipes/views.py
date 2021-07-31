@@ -3,9 +3,9 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import BaseFilterBackend
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from backend.paginator import ResultsSetPagination
 from .models import Recipe, Tag, Ingredient
 from .serializers import (RecipeSerializer, TagSerializer, IngredientSerializer)
 
@@ -23,15 +23,6 @@ class TagsFilterBackend(BaseFilterBackend):
         return queryset
 
 
-class RecipeResultsSetPagination(PageNumberPagination):
-    """
-    Паджинатор для рецептов
-    Размр страницы берется из параметра запроса limit
-    """
-    page_size = 6
-    page_size_query_param = 'limit'
-
-
 class RecipeViewSet(viewsets.ModelViewSet):
     """
     ViewSet для работы с рецептами
@@ -40,7 +31,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """
     model = Recipe
     serializer_class = RecipeSerializer
-    pagination_class = RecipeResultsSetPagination
+    pagination_class = ResultsSetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Recipe.objects.all().order_by('-pk')
     filter_backends = [DjangoFilterBackend, TagsFilterBackend]
