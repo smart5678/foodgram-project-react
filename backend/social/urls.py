@@ -13,5 +13,5 @@ router.register(
 )
 
 urlpatterns = [
-    url('', include(router.urls)),
+    url('subscriptions/', include(router.urls)),
 ]

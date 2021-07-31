@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, \
     IsAuthenticatedOrReadOnly
 
@@ -20,3 +21,9 @@ class SubscriptionsViewSet(UserViewSet):
 
     def get_queryset(self, *args, **kwargs):
         return USER.objects.filter(subscribed__in=self.request.user.subscriber.all())
+
+    @action(methods=['get'], detail=True, permission_classes=[IsAuthenticated],
+            url_path='subscribe', url_name='subscribe')
+    def set_subscribe(self, request, pk=None):
+        print('hello')
+        pass
