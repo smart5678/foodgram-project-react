@@ -11,8 +11,6 @@ from users.serializers import UserSerializer
 USER = get_user_model()
 
 
-
-
 class SubscriptionsViewSet(UserViewSet):
 
     serializer_class = SubscriberSerializer
@@ -22,8 +20,3 @@ class SubscriptionsViewSet(UserViewSet):
     def get_queryset(self, *args, **kwargs):
         return USER.objects.filter(subscribed__in=self.request.user.subscriber.all())
 
-    @action(methods=['get'], detail=True, permission_classes=[IsAuthenticated],
-            url_path='subscribe', url_name='subscribe')
-    def set_subscribe(self, request, pk=None):
-        print('hello')
-        pass
