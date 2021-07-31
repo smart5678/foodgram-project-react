@@ -41,7 +41,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Recipe.objects.all().order_by('-pk')
-
+    filter_backends = [RecipeFilterBackend]
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -58,7 +58,6 @@ class TagViewSet(viewsets.ModelViewSet):
 class IngredientViewSet(viewsets.ModelViewSet):
     model = Ingredient
     serializer_class = IngredientSerializer
-
     pagination_class = None
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -66,12 +65,11 @@ class IngredientViewSet(viewsets.ModelViewSet):
         name = self.request.query_params.get('name')
         if name:
             queryset = Ingredient.objects.filter(name__contains=name)
-            b = queryset.annotate(
+            return queryset.annotate(
                 is_start=Case(
-                    When(name__startswith=name,
-                         then=Value(1)),
+                    When(name__startswith=name, then=Value(1)),
                     default=Value(2)
                     ),
                 ).order_by('is_start')
-            return b
+
         return Ingredient.objects.all()
