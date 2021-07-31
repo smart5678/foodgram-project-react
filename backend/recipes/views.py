@@ -1,3 +1,5 @@
+
+from django.db.models import Q, Case, When, Value, CharField
 import django_filters
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
@@ -20,8 +22,14 @@ USER = get_user_model()
 
 class RecipeFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-
-        return queryset.filter(owner=request.user)
+        tags = request.query_params.getlist('tags')
+        author = request.query_params.get('author')
+        filtered_queryset = queryset
+        if tags:
+            filtered_queryset = filtered_queryset.filter(tags__slug__in=tags).distinct()
+        if author is not None:
+            filtered_queryset = filtered_queryset.filter(author__in=request.user.subscriber)
+        return filtered_queryset
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -32,14 +40,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
-    #queryset = Recipe.objects.all().order_by('-pk')
+    queryset = Recipe.objects.all().order_by('-pk')
 
-    def get_queryset(self):
-        #queryset = Recipe.objects.all().order_by('-pk')
-        tags = self.request.query_params.getlist('tags')
-        if tags:
-            return Recipe.objects.all().order_by('-pk').filter(tags__slug__in=tags).distinct()
-        return Recipe.objects.all().order_by('-pk')
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -56,8 +58,20 @@ class TagViewSet(viewsets.ModelViewSet):
 class IngredientViewSet(viewsets.ModelViewSet):
     model = Ingredient
     serializer_class = IngredientSerializer
-    queryset = Ingredient.objects.all()
+
     pagination_class = None
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+
+    def get_queryset(self):
+        name = self.request.query_params.get('name')
+        if name:
+            queryset = Ingredient.objects.filter(name__contains=name)
+            b = queryset.annotate(
+                is_start=Case(
+                    When(name__startswith=name,
+                         then=Value(1)),
+                    default=Value(2)
+                    ),
+                ).order_by('is_start')
+            return b
+        return Ingredient.objects.all()
