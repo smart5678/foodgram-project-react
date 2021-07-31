@@ -11,6 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     def get_is_subscribed(self, author):
+        """
+        false for not authentificated and self
+        """
         user = self.context['request'].user
         if user.subscriber.filter(author=author):
             print(user, author)

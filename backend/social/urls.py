@@ -7,11 +7,11 @@ from social.views import SubscriptionsViewSet
 router = DefaultRouter()
 
 router.register(
-    r'subscriptions',
+    r'',
     SubscriptionsViewSet,
     basename='subscriptions'
 )
 
 urlpatterns = [
-    url(r'^users/', include(router.urls)),
+    url('', include(router.urls)),
 ]
