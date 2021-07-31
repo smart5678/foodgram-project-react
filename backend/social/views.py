@@ -1,17 +1,21 @@
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, \
+    IsAuthenticatedOrReadOnly
 
 from backend.paginator import ResultsSetPagination
+from social.serializers import SubscriberSerializer
 from users.serializers import UserSerializer
 
 USER = get_user_model()
 
 
+
+
 class SubscriptionsViewSet(UserViewSet):
 
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriberSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = ResultsSetPagination
 
     def get_queryset(self, *args, **kwargs):

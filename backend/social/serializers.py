@@ -1,14 +1,21 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from recipes.models import Recipe
+from recipes.serializers import RecipeSerializer
+from users.serializers import UserSerializer
+
 USER = get_user_model()
 
+class SubscribedRecipeSerializer(RecipeSerializer):
 
-class SubscriberSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time', 'image')
 
-    def get_is_subscribed(self, USER):
-        return True
+
+class SubscriberSerializer(UserSerializer):
+    recipes = SubscribedRecipeSerializer(many=True, read_only=True)
 
     class Meta:
         model = USER
@@ -18,5 +25,6 @@ class SubscriberSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'is_subscribed'
+            'is_subscribed',
+            'recipes',
         )
