@@ -12,7 +12,7 @@ from .serializers import (RecipeSerializer, TagSerializer, IngredientSerializer)
 USER = get_user_model()
 
 
-class TagsFilterBackend(BaseFilterBackend):
+class RecipeFilterBackend(BaseFilterBackend):
     """
     Бэкэнд для филтрации тэгов
     """
@@ -34,7 +34,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = ResultsSetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Recipe.objects.all().order_by('-pk')
-    filter_backends = [DjangoFilterBackend, TagsFilterBackend]
+    filter_backends = [DjangoFilterBackend, RecipeFilterBackend]
     filterset_fields = ['author', ]
 
 
