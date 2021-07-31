@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         false for not authentificated and self
         """
         user = self.context['request'].user
-        if user and user.subscriber.filter(author=author):
+        if user.is_authenticated and user.subscriber.filter(author=author):
             return True
         return False
 
