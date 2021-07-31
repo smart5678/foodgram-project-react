@@ -12,14 +12,14 @@ class Follow(models.Model):
     user = models.ForeignKey(
         USER,
         on_delete=models.CASCADE,
-        related_name="subscribed",
+        related_name="subscriber",
         verbose_name="Подписчик"
     )
 
     author = models.ForeignKey(
         USER,
         on_delete=models.CASCADE,
-        related_name="subscriber",
+        related_name="subscribed",
         verbose_name="Автор"
     )
 
@@ -28,4 +28,4 @@ class Follow(models.Model):
         verbose_name_plural = "Подписчики"
 
     def __str__(self):
-        return f"Редактирование подписки {self.user} на автора {self.author}"
+        return f"Пользователь {self.user} подписан на автора рецепта {self.author}"

@@ -10,8 +10,13 @@ class UserSerializer(serializers.ModelSerializer):
     """
     is_subscribed = serializers.SerializerMethodField()
 
-    def get_is_subscribed(self, USER):
-        return True
+    def get_is_subscribed(self, author):
+        user = self.context['request'].user
+        if user.subscriber.filter(author=author):
+            print(user, author)
+            print(True)
+            return True
+        return False
 
     class Meta:
         model = USER

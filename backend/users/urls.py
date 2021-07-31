@@ -13,4 +13,4 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
 ]
 
-urlpatterns += [path('', include('djoser.urls')),]
+# urlpatterns += [path('', include('djoser.urls')),]

@@ -10,8 +10,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url('api', include('recipes.urls')),
 ]
+urlpatterns += [url('api/', include('social.urls'))]
 urlpatterns += [url('api/', include('users.urls'))]
-# urlpatterns += [url('api/', include('social.urls'))]
 
 
 if settings.DEBUG:
