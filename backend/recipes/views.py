@@ -32,13 +32,18 @@ class RecipeFilterBackend(filters.BaseFilterBackend):
         return filtered_queryset
 
 
+class RecipeResultsSetPagination(PageNumberPagination):
+    page_size = 6
+    page_size_query_param = 'limit'
+
+
 class RecipeViewSet(viewsets.ModelViewSet):
     """
     ViewSet для работы с комментариями
     """
     model = Recipe
     serializer_class = RecipeSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = RecipeResultsSetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Recipe.objects.all().order_by('-pk')
     filter_backends = [RecipeFilterBackend]
