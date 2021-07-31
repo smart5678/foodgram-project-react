@@ -44,6 +44,9 @@ class TagSerializer(ModelSerializer):
 
 
 class RecipeSerializer(ModelSerializer):
+    """
+    В update и create дополнительно обновляются связанные модели ингредиентов.
+    """
     author = UserSerializer()
     ingredients = IngredientRecipeSerializer(many=True, read_only=True, partial=False)
     tags = TagSerializer(many=True, read_only=True, partial=False)
@@ -83,10 +86,9 @@ class RecipeSerializer(ModelSerializer):
 
     def to_internal_value(self, data):
         """
-
+        Возвращает список ингредиентов к формату сериализатора модели ингредиентов
+        Декодирует картинку из base64, отдает путь в image модели.
         """
-        ingredients = data.pop('ingredients')
-
         internal_data = data
         if self.context.get('request').method in ['PUT', 'POST']:
             image = internal_data.pop('image')
@@ -95,6 +97,7 @@ class RecipeSerializer(ModelSerializer):
             image_file = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             internal_data['image'] = image_file
 
+        ingredients = data.pop('ingredients')
         ingredients_internal = []
         for ingredient in ingredients:
             ingredients_internal.append({"ingredient": ingredient})

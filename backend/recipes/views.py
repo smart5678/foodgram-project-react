@@ -12,30 +12,38 @@ from .serializers import (RecipeSerializer, TagSerializer, IngredientSerializer)
 USER = get_user_model()
 
 
-class RecipeFilterBackend(BaseFilterBackend):
+class TagsFilterBackend(BaseFilterBackend):
+    """
+    Бэкэнд для филтрации тэгов
+    """
     def filter_queryset(self, request, queryset, view):
         tags = request.query_params.getlist('tags')
-        filtered_queryset = queryset
         if tags:
-            filtered_queryset = filtered_queryset.filter(tags__slug__in=tags).distinct()
-        return filtered_queryset
+            return queryset.filter(tags__slug__in=tags).distinct()
+        return queryset
 
 
 class RecipeResultsSetPagination(PageNumberPagination):
+    """
+    Паджинатор для рецептов
+    Размр страницы берется из параметра запроса limit
+    """
     page_size = 6
     page_size_query_param = 'limit'
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """
-    ViewSet для работы с комментариями
+    ViewSet для работы с рецептами
+    Фильтруется по автору или по тэгам (TagsFilterBackend)
+    Паджинация берется из параметра limit запросе
     """
     model = Recipe
     serializer_class = RecipeSerializer
     pagination_class = RecipeResultsSetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Recipe.objects.all().order_by('-pk')
-    filter_backends = [DjangoFilterBackend, RecipeFilterBackend]
+    filter_backends = [DjangoFilterBackend, TagsFilterBackend]
     filterset_fields = ['author', ]
 
 
@@ -50,6 +58,11 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet с фильтром по ингредиентам.
+    Фильтрует по вхождению в поле name параметра запроса name
+    Возвращает сначала совпадающие с началом строки
+    """
     model = Ingredient
     serializer_class = IngredientSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
