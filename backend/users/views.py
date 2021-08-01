@@ -3,7 +3,6 @@ from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from backend.paginator import ResultsSetPagination

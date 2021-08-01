@@ -2,7 +2,6 @@ from django.shortcuts import get_object_or_404
 import base64
 
 from django.core.files.base import ContentFile
-from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from .models import Recipe, Ingredient, RecipeIngredients, Tag
@@ -25,9 +24,8 @@ class IngredientRecipeSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         """
-        Добавляем поля ингредиента в отображение рецепта
+        Делаем отображение полей ингредиента в отображение рецепта плоским
         Будет также переписан id ингредиента вместо id RecipeIngredient
-        Можно изменить, если в IngredientSerializer.Meta.fields убрать id
         """
         representation = super().to_representation(instance)
         ingredient_representation = representation.pop('ingredient')

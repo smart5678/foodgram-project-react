@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, \
     IsAuthenticatedOrReadOnly
 
 from backend.paginator import ResultsSetPagination
 from social.serializers import SubscriberSerializer
-from users.serializers import UserSerializer
 
 USER = get_user_model()
 
