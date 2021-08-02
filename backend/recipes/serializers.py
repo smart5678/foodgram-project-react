@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 import base64
 
 from django.core.files.base import ContentFile
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from .models import Recipe, Ingredient, RecipeIngredients, Tag
@@ -49,9 +50,16 @@ class RecipeSerializer(ModelSerializer):
     ingredients = IngredientRecipeSerializer(many=True, read_only=True, partial=False)
     tags = TagSerializer(many=True, read_only=True, partial=False)
 
-    class Meta:
-        model = Recipe
-        fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients', 'image')
+    is_favorited = serializers.SerializerMethodField()
+
+    def get_is_favorited(self, recipe):
+        """
+        false for not authentificated and self
+        """
+        user = self.context['request'].user
+        if user.is_authenticated and user.favorites.filter(favorite_recipe=recipe):
+            return True
+        return False
 
     def update(self, instance, validated_data):
         self.instance.ingredients.all().delete()
@@ -103,4 +111,6 @@ class RecipeSerializer(ModelSerializer):
 
         return internal_data
 
-
+    class Meta:
+        model = Recipe
+        fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients', 'image', 'is_favorited')

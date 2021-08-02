@@ -29,8 +29,3 @@ class UserViewSet(UserViewSet):
         else:
             Follow.objects.get(user=request.user, author_id=id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-
-
