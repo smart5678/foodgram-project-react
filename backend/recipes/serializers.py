@@ -2,36 +2,40 @@ from django.shortcuts import get_object_or_404
 import base64
 
 from django.core.files.base import ContentFile
+from rest_framework import serializers
+from rest_framework.relations import StringRelatedField
 from rest_framework.serializers import ModelSerializer
 
-from .models import Recipe, Ingredient, RecipeIngredients, Tag
+from .models import Recipe, Ingredient, Tag, \
+    RecipeIngredientAmount
 from users.serializers import UserSerializer
 
 
 class IngredientSerializer(ModelSerializer):
+    amount = StringRelatedField()
 
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
+
+
+class AmountSerializer(ModelSerializer):
+
+    class Meta:
+        model = RecipeIngredientAmount
+        fields = ('amount', )
 
 
 class IngredientRecipeSerializer(ModelSerializer):
-    ingredient = IngredientSerializer()
+    amount = serializers.SerializerMethodField()
+
+    def get_amount(self, ingredient):
+        print(ingredient)
+        return 55
 
     class Meta:
-        model = RecipeIngredients
-        fields = ('id', 'ingredient', 'amount')
-
-    def to_representation(self, instance):
-        """
-        Делаем отображение полей ингредиента в отображение рецепта плоским
-        Будет также переписан id ингредиента вместо id RecipeIngredient
-        """
-        representation = super().to_representation(instance)
-        ingredient_representation = representation.pop('ingredient')
-        for key in ingredient_representation:
-            representation[key] = ingredient_representation[key]
-        return representation
+        model = Ingredient
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class TagSerializer(ModelSerializer):

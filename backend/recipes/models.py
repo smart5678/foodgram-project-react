@@ -23,6 +23,33 @@ class Tag(models.Model):
         return f'{self.slug} - HEX {self.color}'
 
 
+class Ingredient(models.Model):
+    """
+    Ингредиенты
+    """
+
+    name = models.CharField(
+        'Название',
+        #unique=True,
+        blank=False,
+        null=False,
+        max_length=200
+    )
+    measurement_unit = models.CharField(
+        'Единицы измерения',
+        max_length=200,
+        blank=False
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return f'{self.name}, {self.measurement_unit}'
+
+
 class Recipe(models.Model):
     """
     Модель recipe
@@ -58,6 +85,12 @@ class Recipe(models.Model):
     )
     image = models.ImageField(upload_to='images/', blank=False, null=True)
 
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        verbose_name='Ингредиенты',
+        related_name='recipes',
+        through='RecipeIngredientAmount'
+    )
 
     class Meta:
         ordering = ['name']
@@ -68,48 +101,20 @@ class Recipe(models.Model):
         return self.name
 
 
-class Ingredient(models.Model):
-    """
-    Ингредиенты
-    """
-
-    name = models.CharField(
-        'Название',
-        #unique=True,
-        blank=False,
-        null=False,
-        max_length=200
-    )
-    measurement_unit = models.CharField(
-        'Единицы измерения',
-        max_length=200,
-        blank=False
-    )
-
-    class Meta:
-        ordering = ['name']
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-
-    def __str__(self):
-        return f'{self.name}, {self.measurement_unit}'
-
-
-class RecipeIngredients(models.Model):
+class RecipeIngredientAmount(models.Model):
+    amount = models.IntegerField('Количество в рецепте', blank=False)
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredients',
+        related_name='amount',
         verbose_name='Рецепт'
     )
-
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='amounts',
         verbose_name='Ингредиент'
     )
-    amount = models.IntegerField('Количество в рецепте', blank=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(
@@ -118,3 +123,6 @@ class RecipeIngredients(models.Model):
         ), ]
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
+
+    def __str__(self):
+        return str(self.amount)

@@ -1,13 +1,13 @@
 from django.contrib import admin
-from .models import Ingredient, Tag, RecipeIngredients, Recipe
+from .models import Ingredient, Tag, Recipe, RecipeIngredientAmount
 
 
-@admin.register(RecipeIngredients)
+@admin.register(RecipeIngredientAmount)
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'ingredient', 'amount')
     list_filter = ('recipe', 'ingredient')
     fields = (('recipe',), ('ingredient', 'amount'))
-    list_editable = ('ingredient', 'amount', )
+    list_editable = ('recipe', 'ingredient', 'amount', )
     empty_value_display = '-пусто-'
 
 
@@ -16,7 +16,7 @@ class IngredientAdmin(admin.ModelAdmin):
     """
     Конфигурация отображения модели Ingredient в Админ.панели
     """
-    list_display = ('pk', 'name', 'measurement_unit')
+    list_display = ('name', 'measurement_unit')
     list_editable = ('measurement_unit',)
     fields = (('name', 'measurement_unit'),)
     list_filter = ('name',)
@@ -34,7 +34,7 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class IngredientInline(admin.TabularInline):
-    model = RecipeIngredients
+    model = RecipeIngredientAmount
 
 
 @admin.register(Recipe)
