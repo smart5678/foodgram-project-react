@@ -1,4 +1,5 @@
-from django.db.models import Case, When, Value
+from django.db import connection
+from django.db.models import Case, When, Value, Sum
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
@@ -80,12 +81,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False, permission_classes=[IsAuthenticatedOrReadOnly],
             url_path='download_shopping_cart', url_name='download_shopping_cart')
     def set_download_shopping_cart(self, request):
-        cartquery = request.user.buyer.all().purchased.all() # Cart.objects.filter(user=request.user)
-        recipes = Recipe.objects.filter(purchased__in=cartquery)
-        ingredients = RecipeIngredients.objects.filter(recipe__in=recipes)
-        serializer = SimpleRecipeSerializer(query, context={'request': request})
-        a = ingredients.distinct()
-        return Response(serializer.data)
+        # row sql
+#         with connection.cursor() as cursor:
+#             cursor.execute(
+# """
+# SELECT recipes_ingredient.name, SUM(amount)
+# FROM recipes_recipeingredients
+#     JOIN recipes_ingredient
+#         ON recipes_recipeingredients.ingredient_id=recipes_ingredient.id
+#     JOIN recipes_recipe
+#         ON recipes_recipe.id=recipes_recipeingredients.recipe_id
+# WHERE recipe_id IN (SELECT recipe_id FROM cart_cart WHERE cart_cart.user_id=1)
+# GROUP BY recipes_ingredient.name;
+# """
+#             )
+#             row = cursor.fetchall()
+#             print(row)
+        #
+        recipes_in_cart = Cart.objects.filter(user=request.user).values_list('recipe__id')
+        ingredients =\
+            RecipeIngredients.objects.select_related('ingredient').\
+            filter(recipe__id__in=recipes_in_cart).\
+            values('ingredient__name', 'ingredient__measurement_unit').annotate(total_amount=Sum('amount'))
+
+        return Response(ingredients)
 
 
 class TagViewSet(viewsets.ModelViewSet):
