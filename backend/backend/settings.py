@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'recipes',
     'users',
     'social',
+    'cart'
     #'debug_toolbar',
 ]
 

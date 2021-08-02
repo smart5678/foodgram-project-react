@@ -51,13 +51,17 @@ class RecipeSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True, partial=False)
 
     is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     def get_is_favorited(self, recipe):
-        """
-        false for not authentificated and self
-        """
         user = self.context['request'].user
         if user.is_authenticated and user.favorites.filter(favorite_recipe=recipe):
+            return True
+        return False
+
+    def get_is_in_shopping_cart(self, recipe):
+        user = self.context['request'].user
+        if user.is_authenticated and user.buyer.filter(recipe=recipe):
             return True
         return False
 
@@ -113,4 +117,17 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients', 'image', 'is_favorited')
+        fields = ('id', 'tags', 'author', 'name', 'text', 'cooking_time', 'ingredients', 'image', 'is_favorited', 'is_in_shopping_cart')
+
+
+class SimpleRecipeSerializer(UserSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+
+        )

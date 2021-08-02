@@ -8,9 +8,10 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from backend.paginator import ResultsSetPagination
+from cart.models import Cart
 from social.models import Favorite
-from social.serializers import FavoriteSerializer, FavoriteRecipeSerializer
-from .models import Recipe, Tag, Ingredient
+from social.serializers import FavoriteSerializer, SimpleRecipeSerializer
+from .models import Recipe, Tag, Ingredient, RecipeIngredients
 from .serializers import (RecipeSerializer, TagSerializer, IngredientSerializer)
 
 USER = get_user_model()
@@ -23,6 +24,7 @@ class RecipeFilterBackend(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         tags = request.query_params.getlist('tags')
         is_favorited = request.query_params.get('is_favorited')
+        is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
         if is_favorited and is_favorited == 'true':
             favorited = queryset.filter(favorited__user=request.user)
         else:
@@ -31,8 +33,12 @@ class RecipeFilterBackend(BaseFilterBackend):
             tagged = favorited.filter(tags__slug__in=tags).distinct()
         else:
             tagged = favorited
+        if is_in_shopping_cart:
+            shopped = tagged.filter(purchased__user=request.user)
+        else:
+            shopped = tagged
 
-        return tagged
+        return shopped
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -54,11 +60,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def set_favorite(self, request, pk=None):
         if request.method == 'GET':
             Favorite.objects.create(user=request.user, favorite_recipe_id=pk)
-            serializer = FavoriteRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
+            serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
             return Response(serializer.data)
         else:
             Favorite.objects.get(user=request.user, favorite_recipe_id=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['get', 'delete'], detail=True, permission_classes=[IsAuthenticatedOrReadOnly],
+            url_path='shopping_cart', url_name='shopping_cart')
+    def set_shopping_cart(self, request, pk=None):
+        if request.method == 'GET':
+            Cart.objects.create(user=request.user, recipe_id=pk)
+            serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
+            return Response(serializer.data)
+        else:
+            Cart.objects.get(user=request.user, recipe_id=pk).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['get'], detail=False, permission_classes=[IsAuthenticatedOrReadOnly],
+            url_path='download_shopping_cart', url_name='download_shopping_cart')
+    def set_download_shopping_cart(self, request):
+        cartquery = request.user.buyer.all().purchased.all() # Cart.objects.filter(user=request.user)
+        recipes = Recipe.objects.filter(purchased__in=cartquery)
+        ingredients = RecipeIngredients.objects.filter(recipe__in=recipes)
+        serializer = SimpleRecipeSerializer(query, context={'request': request})
+        a = ingredients.distinct()
+        return Response(serializer.data)
 
 
 class TagViewSet(viewsets.ModelViewSet):
