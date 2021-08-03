@@ -4,7 +4,7 @@ from cart.models import Cart
 
 
 @admin.register(Cart)
-class Admin(admin.ModelAdmin):
+class CartAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'user')
     list_filter = ('recipe', 'user')
     fields = (('recipe','user'),)

@@ -52,7 +52,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = ResultsSetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
-    queryset = Recipe.objects.all().order_by('-pk')
+    queryset = Recipe.objects.prefetch_related('ingredients__ingredient').all().order_by('-pk')
     filter_backends = [DjangoFilterBackend, RecipeFilterBackend]
     filterset_fields = ['author', ]
 
