@@ -81,8 +81,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             except ObjectDoesNotExist:
                 return Response(
                     status=status.HTTP_400_BAD_REQUEST,
-                    data={"error": {"В избранном рецепта нет"}},
-                    content_type='application/json'
+                    data={'error': 'В избранном рецепта нет'},
+                    # content_type='application/json'
                 )
 
     @action(methods=['get', 'delete'], detail=True, permission_classes=[IsAuthenticated],
