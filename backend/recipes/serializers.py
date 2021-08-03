@@ -2,7 +2,8 @@ from django.shortcuts import get_object_or_404
 import base64
 
 from django.core.files.base import ContentFile
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
 from .models import Recipe, Ingredient, RecipeIngredients, Tag
@@ -33,6 +34,13 @@ class IngredientRecipeSerializer(ModelSerializer):
         for key in ingredient_representation:
             representation[key] = ingredient_representation[key]
         return representation
+
+
+class RecipeIngredientsSerializer(ModelSerializer):
+
+    class Meta:
+        model = RecipeIngredients
+        fields = '__all__'
 
 
 class TagSerializer(ModelSerializer):
@@ -66,16 +74,30 @@ class RecipeSerializer(ModelSerializer):
         return False
 
     def update(self, instance, validated_data):
-        self.instance.ingredients.all().delete()
-        ingredients = validated_data.pop('ingredients')
-        for ingredient in ingredients:
-            recipe_ingredient = RecipeIngredients.objects.create(
-                recipe=self.instance,
-                ingredient=get_object_or_404(Ingredient, pk=ingredient['ingredient']['id']),
-                amount=ingredient['ingredient']['amount']
+        ingredient_list = []
+        for ingredient in validated_data.pop('ingredients'):
+            ingredient_list.append({
+                'recipe': self.instance.id,
+                'ingredient': ingredient['ingredient']['id'],
+                'amount': ingredient['ingredient']['amount'],
+            })
+
+        ingredient_serializer = RecipeIngredientsSerializer(data=ingredient_list, many=True)
+        recipe_serializer = SimpleRecipeSerializer(data=validated_data, partial=True)
+
+        valid = ingredient_serializer.is_valid()
+        valid &= recipe_serializer.is_valid()
+        if valid:
+            super().update(instance, validated_data)
+            self.instance.ingredients.all().delete()
+            ingredient_serializer.save()
+        else:
+            raise serializers.ValidationError(
+                {'detail': [
+                            {f'Ошибки в ингредиентах': ingredient_serializer.errors or 'Нет ошибок'},
+                            {f'Ошибки в рецепте {instance.name}': recipe_serializer.errors or 'Нет ошибок'}
+                ]}
             )
-            recipe_ingredient.save()
-        super().update(instance, validated_data)
         return instance
 
     def create(self, validated_data):
@@ -121,6 +143,10 @@ class RecipeSerializer(ModelSerializer):
 
 
 class SimpleRecipeSerializer(UserSerializer):
+    """
+    Используется для спсиков избранного и корзины
+    С его помощью валидируются несвязанные поля.
+    """
 
     class Meta:
         model = Recipe
@@ -129,5 +155,6 @@ class SimpleRecipeSerializer(UserSerializer):
             'name',
             'image',
             'cooking_time',
-
+            'author',
+            'text'
         )

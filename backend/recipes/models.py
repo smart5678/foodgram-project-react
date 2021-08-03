@@ -52,7 +52,7 @@ class Recipe(models.Model):
         'Время приготовления (в минутах)',
         validators=[
             MinValueValidator(1, 'Быстрее не получится'),
-            integer_validator
+            # integer_validator
         ],
         blank=False
     )
@@ -109,7 +109,9 @@ class RecipeIngredients(models.Model):
         related_name='recipe',
         verbose_name='Ингредиент'
     )
-    amount = models.IntegerField('Количество в рецепте', blank=False)
+    amount = models.IntegerField('Количество в рецепте', blank=False, validators=[
+            MinValueValidator(1, 'Не надо жадничать'),
+        ],)
 
     class Meta:
         constraints = [models.UniqueConstraint(

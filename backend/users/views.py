@@ -1,11 +1,10 @@
+from backend.paginator import ResultsSetPagination
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-
-from backend.paginator import ResultsSetPagination
 from social.models import Follow
 from social.serializers import SubscriberSerializer
 from users.serializers import UserSerializer
