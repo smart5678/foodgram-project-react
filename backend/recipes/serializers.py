@@ -42,20 +42,6 @@ class TagSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class FavoriteRecipeSerializer(ModelSerializer):
-    class Meta:
-        model = Favorite
-        fields = '__all__'
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=model.objects.all(),
-                fields=('favorite_recipe', 'user'),
-                message="Рецепт уже добавлен в избранное"
-            )
-        ]
-
-
-
 class RecipeSerializer(ModelSerializer):
     """
     В update и create дополнительно обновляются связанные модели ингредиентов.

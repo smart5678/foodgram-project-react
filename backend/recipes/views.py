@@ -1,11 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import connection
 from django.db.models import Case, When, Value, Sum
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
     IsAuthenticated
@@ -13,11 +11,11 @@ from rest_framework.response import Response
 
 from backend.paginator import ResultsSetPagination
 from cart.models import Cart
+from cart.serializers import CartRecipeSerializer
 from social.models import Favorite
-from social.serializers import FavoriteSerializer, SimpleRecipeSerializer
+from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
 from .models import Recipe, Tag, Ingredient, RecipeIngredients
-from .serializers import (RecipeSerializer, TagSerializer, IngredientSerializer,
-                          RecipeIngredientsSerializer, FavoriteRecipeSerializer)
+from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer
 
 USER = get_user_model()
 
@@ -77,23 +75,35 @@ class RecipeViewSet(viewsets.ModelViewSet):
         else:
             try:
                 Favorite.objects.get(user=request.user, favorite_recipe_id=pk).delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
             except ObjectDoesNotExist:
                 return Response(
                     status=status.HTTP_400_BAD_REQUEST,
                     data={'error': 'В избранном рецепта нет'},
-                    # content_type='application/json'
                 )
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get', 'delete'], detail=True, permission_classes=[IsAuthenticated],
             url_path='shopping_cart', url_name='shopping_cart')
     def set_shopping_cart(self, request, pk=None):
         if request.method == 'GET':
-            Cart.objects.create(user=request.user, recipe_id=pk)
-            serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
-            return Response(serializer.data)
+            data = {'user': request.user.id, 'recipe_id': pk}
+            serializer = CartRecipeSerializer(data=data, partial=False)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                cart_serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
+                return Response(cart_serializer.data)
+            else:
+                raise serializers.ValidationError(
+                    {'error': serializer.errors}
+                )
         else:
-            Cart.objects.get(user=request.user, recipe_id=pk).delete()
+            try:
+                Cart.objects.get(user=request.user, recipe_id=pk).delete()
+            except ObjectDoesNotExist:
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data={'error': 'В корзине рецепта нет'},
+                )
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False, permission_classes=[IsAuthenticated],
