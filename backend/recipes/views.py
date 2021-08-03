@@ -86,7 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             url_path='shopping_cart', url_name='shopping_cart')
     def set_shopping_cart(self, request, pk=None):
         if request.method == 'GET':
-            data = {'user': request.user.id, 'recipe_id': pk}
+            data = {'user': request.user.id, 'recipe': pk}
             serializer = CartRecipeSerializer(data=data, partial=False)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
