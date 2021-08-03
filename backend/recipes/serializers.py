@@ -6,6 +6,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
+from social.models import Favorite
 from .models import Recipe, Ingredient, RecipeIngredients, Tag
 from users.serializers import UserSerializer
 
@@ -26,17 +27,6 @@ class IngredientRecipeSerializer(ModelSerializer):
         model = RecipeIngredients
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-    # def to_representation(self, instance):
-    #     """
-    #     Делаем отображение полей ингредиента в отображение рецепта плоским
-    #     Будет также переписан id ингредиента вместо id RecipeIngredient
-    #     """
-    #     representation = super().to_representation(instance)
-    #     ingredient_representation = representation.pop('ingredient')
-    #     for key in ingredient_representation:
-    #         representation[key] = ingredient_representation[key]
-    #     return representation
-
 
 class RecipeIngredientsSerializer(ModelSerializer):
 
@@ -50,6 +40,20 @@ class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
+
+
+class FavoriteRecipeSerializer(ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = '__all__'
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=model.objects.all(),
+                fields=('favorite_recipe', 'user'),
+                message="Рецепт уже добавлен в избранное"
+            )
+        ]
+
 
 
 class RecipeSerializer(ModelSerializer):
