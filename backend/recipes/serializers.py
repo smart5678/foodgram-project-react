@@ -6,6 +6,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
+from social.models import Favorite
 from .models import Recipe, Ingredient, RecipeIngredients, Tag
 from users.serializers import UserSerializer
 
@@ -18,22 +19,13 @@ class IngredientSerializer(ModelSerializer):
 
 
 class IngredientRecipeSerializer(ModelSerializer):
-    ingredient = IngredientSerializer()
+    id = serializers.IntegerField(read_only=True, source="ingredient.pk")
+    name = serializers.CharField(read_only=True, source="ingredient.name")
+    measurement_unit = serializers.CharField(read_only=True, source="ingredient.measurement_unit")
 
     class Meta:
         model = RecipeIngredients
-        fields = ('id', 'ingredient', 'amount')
-
-    def to_representation(self, instance):
-        """
-        Делаем отображение полей ингредиента в отображение рецепта плоским
-        Будет также переписан id ингредиента вместо id RecipeIngredient
-        """
-        representation = super().to_representation(instance)
-        ingredient_representation = representation.pop('ingredient')
-        for key in ingredient_representation:
-            representation[key] = ingredient_representation[key]
-        return representation
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeIngredientsSerializer(ModelSerializer):
