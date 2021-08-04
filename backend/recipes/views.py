@@ -150,3 +150,29 @@ class IngredientViewSet(viewsets.ModelViewSet):
                 ).order_by('is_start')
 
         return Ingredient.objects.all()
+
+
+class IngredientFilterBackend(BaseFilterBackend):
+    """
+    Бэкэнд для фильтрации тэгов
+    """
+    def filter_queryset(self, request, queryset, view):
+        tags = request.query_params.getlist('tags')
+        is_favorited = request.query_params.get('is_favorited')
+        is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
+        if is_favorited and is_favorited == 'true':
+            favorited = queryset.filter(favorited__user=request.user)
+        else:
+            favorited = queryset
+        if tags:
+            tagged = favorited.filter(tags__slug__in=tags).distinct()
+        else:
+            tagged = favorited
+        if is_in_shopping_cart:
+            shopped = tagged.filter(purchased__user=request.user)
+        else:
+            shopped = tagged
+
+
+
+        return shopped
