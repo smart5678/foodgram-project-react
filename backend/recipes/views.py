@@ -1,8 +1,7 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status, serializers
+from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
@@ -41,66 +40,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def set_favorite(self, request, pk=None):
         return set_action(
             self, request, pk,
-            model_serializer=FavoriteRecipeSerializer,
-            simple_serializer=SimpleRecipeSerializer,
-            action_model=Favorite,
-            recipe_model=Recipe,
+            acted_serializer=FavoriteRecipeSerializer,
+            ressponse_serializer=SimpleRecipeSerializer,
+            acted_model=Favorite,
+            response_model=Recipe,
             follow='user',
             followed='favorite_recipe'
         )
-        # if request.method == 'GET':
-        #     data = {'user': request.user.id, 'favorite_recipe': pk}
-        #     serializer = FavoriteRecipeSerializer(data=data, partial=False)
-        #     if serializer.is_valid(raise_exception=True):
-        #         serializer.save()
-        #         recipe_serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
-        #         return Response(recipe_serializer.data)
-        #     else:
-        #         raise serializers.ValidationError(
-        #             {'error': serializer.errors}
-        #         )
-        # else:
-        #     try:
-        #         Favorite.objects.get(user=request.user, favorite_recipe_id=pk).delete()
-        #     except ObjectDoesNotExist:
-        #         return Response(
-        #             status=status.HTTP_400_BAD_REQUEST,
-        #             data={'error': 'В избранном рецепта нет'},
-        #         )
-        #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get', 'delete'], detail=True, permission_classes=[IsAuthenticated],
             url_path='shopping_cart', url_name='shopping_cart')
     def set_shopping_cart(self, request, pk=None):
         return set_action(
             self, request, pk,
-            model_serializer=CartRecipeSerializer,
-            simple_serializer=SimpleRecipeSerializer,
-            action_model=Cart,
-            recipe_model=Recipe,
+            acted_serializer=CartRecipeSerializer,
+            ressponse_serializer=SimpleRecipeSerializer,
+            acted_model=Cart,
+            response_model=Recipe,
             follow='user',
             followed='recipe'
         )
-        # if request.method == 'GET':
-        #     data = {'user': request.user.id, 'recipe': pk}
-        #     serializer = CartRecipeSerializer(data=data, partial=False)
-        #     if serializer.is_valid(raise_exception=True):
-        #         serializer.save()
-        #         cart_serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
-        #         return Response(cart_serializer.data)
-        #     else:
-        #         raise serializers.ValidationError(
-        #             {'error': serializer.errors}
-        #         )
-        # else:
-        #     try:
-        #         Cart.objects.get(user=request.user, recipe_id=pk).delete()
-        #     except ObjectDoesNotExist:
-        #         return Response(
-        #             status=status.HTTP_400_BAD_REQUEST,
-        #             data={'error': 'В корзине рецепта нет'},
-        #         )
-        #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False, permission_classes=[IsAuthenticated],
             url_path='download_shopping_cart', url_name='download_shopping_cart')
@@ -139,5 +98,3 @@ class IngredientViewSet(viewsets.ModelViewSet):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
-
-

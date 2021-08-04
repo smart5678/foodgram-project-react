@@ -84,12 +84,7 @@ class RecipeSerializer(ModelSerializer):
             self.instance.ingredients.all().delete()
             ingredient_serializer.save()
         else:
-            raise serializers.ValidationError(
-                {'detail': [
-                            {f'Ошибки в ингредиентах': ingredient_serializer.errors or 'Нет ошибок'},
-                            {f'Ошибки в рецепте {instance.name}': recipe_serializer.errors or 'Нет ошибок'}
-                ]}
-            )
+            raise serializers.ValidationError(detail=(ingredient_serializer.errors, recipe_serializer.errors))
         return instance
 
     def create(self, validated_data):
@@ -100,13 +95,20 @@ class RecipeSerializer(ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         validated_data['author'] = self.context['request'].user
         recipe = super().create(validated_data)
+        ingredient_list = []
         for ingredient in ingredients:
-            RecipeIngredients.objects.create(
-                recipe=recipe,
-                ingredient=get_object_or_404(Ingredient, pk=ingredient['ingredient']['id']),
-                amount=ingredient['ingredient']['amount']
-            )
-        return recipe
+            ingredient_list.append({
+                'recipe': recipe.id,
+                'ingredient': ingredient['ingredient']['id'],
+                'amount': ingredient['ingredient']['amount'],
+            })
+        ingredient_serializer = RecipeIngredientsSerializer(data=ingredient_list, many=True)
+        if ingredient_serializer.is_valid():
+            ingredient_serializer.save()
+            return recipe
+        else:
+            recipe.delete()
+            raise serializers.ValidationError(detail=ingredient_serializer.errors)
 
     def to_internal_value(self, data):
         """
