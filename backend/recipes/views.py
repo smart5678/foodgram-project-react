@@ -15,6 +15,7 @@ from cart.serializers import CartRecipeSerializer
 from social.models import Favorite
 from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
 from .backends import RecipeFilterBackend, IngredientFilterBackend
+from .mixins import set_action
 from .models import Recipe, Tag, Ingredient, RecipeIngredients
 from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer
 
@@ -38,50 +39,68 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=['get', 'delete'], detail=True, permission_classes=[IsAuthenticated],
             url_path='favorite', url_name='favorite')
     def set_favorite(self, request, pk=None):
-        if request.method == 'GET':
-            data = {'user': request.user.id, 'favorite_recipe': pk}
-            serializer = FavoriteRecipeSerializer(data=data, partial=False)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                recipe_serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
-                return Response(recipe_serializer.data)
-            else:
-                raise serializers.ValidationError(
-                    {'error': serializer.errors}
-                )
-        else:
-            try:
-                Favorite.objects.get(user=request.user, favorite_recipe_id=pk).delete()
-            except ObjectDoesNotExist:
-                return Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={'error': 'В избранном рецепта нет'},
-                )
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        return set_action(
+            self, request, pk,
+            model_serializer=FavoriteRecipeSerializer,
+            simple_serializer=SimpleRecipeSerializer,
+            action_model=Favorite,
+            recipe_model=Recipe,
+            follow='user',
+            followed='favorite_recipe'
+        )
+        # if request.method == 'GET':
+        #     data = {'user': request.user.id, 'favorite_recipe': pk}
+        #     serializer = FavoriteRecipeSerializer(data=data, partial=False)
+        #     if serializer.is_valid(raise_exception=True):
+        #         serializer.save()
+        #         recipe_serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
+        #         return Response(recipe_serializer.data)
+        #     else:
+        #         raise serializers.ValidationError(
+        #             {'error': serializer.errors}
+        #         )
+        # else:
+        #     try:
+        #         Favorite.objects.get(user=request.user, favorite_recipe_id=pk).delete()
+        #     except ObjectDoesNotExist:
+        #         return Response(
+        #             status=status.HTTP_400_BAD_REQUEST,
+        #             data={'error': 'В избранном рецепта нет'},
+        #         )
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get', 'delete'], detail=True, permission_classes=[IsAuthenticated],
             url_path='shopping_cart', url_name='shopping_cart')
     def set_shopping_cart(self, request, pk=None):
-        if request.method == 'GET':
-            data = {'user': request.user.id, 'recipe': pk}
-            serializer = CartRecipeSerializer(data=data, partial=False)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                cart_serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
-                return Response(cart_serializer.data)
-            else:
-                raise serializers.ValidationError(
-                    {'error': serializer.errors}
-                )
-        else:
-            try:
-                Cart.objects.get(user=request.user, recipe_id=pk).delete()
-            except ObjectDoesNotExist:
-                return Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={'error': 'В корзине рецепта нет'},
-                )
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        return set_action(
+            self, request, pk,
+            model_serializer=CartRecipeSerializer,
+            simple_serializer=SimpleRecipeSerializer,
+            action_model=Cart,
+            recipe_model=Recipe,
+            follow='user',
+            followed='recipe'
+        )
+        # if request.method == 'GET':
+        #     data = {'user': request.user.id, 'recipe': pk}
+        #     serializer = CartRecipeSerializer(data=data, partial=False)
+        #     if serializer.is_valid(raise_exception=True):
+        #         serializer.save()
+        #         cart_serializer = SimpleRecipeSerializer(Recipe.objects.get(id=pk), context={'request': request})
+        #         return Response(cart_serializer.data)
+        #     else:
+        #         raise serializers.ValidationError(
+        #             {'error': serializer.errors}
+        #         )
+        # else:
+        #     try:
+        #         Cart.objects.get(user=request.user, recipe_id=pk).delete()
+        #     except ObjectDoesNotExist:
+        #         return Response(
+        #             status=status.HTTP_400_BAD_REQUEST,
+        #             data={'error': 'В корзине рецепта нет'},
+        #         )
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False, permission_classes=[IsAuthenticated],
             url_path='download_shopping_cart', url_name='download_shopping_cart')

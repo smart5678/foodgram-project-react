@@ -28,3 +28,6 @@ class Cart(models.Model):
             fields=['recipe', 'user'],
             name='purchased-buyer'
         ), ]
+
+    def __str__(self):
+        return self._meta.verbose_name
