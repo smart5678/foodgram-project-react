@@ -1,12 +1,10 @@
-from collections import namedtuple
-
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Case, When, Value, Sum
+from django.db.models import Sum
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
-from rest_framework.filters import BaseFilterBackend
+
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
     IsAuthenticated
 from rest_framework.response import Response
