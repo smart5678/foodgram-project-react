@@ -5,7 +5,7 @@ from rest_framework.filters import BaseFilterBackend
 class IngredientFilterBackend(BaseFilterBackend):
     """
     Бэкэнд для фильтрации ингредиентов
-    С сортировкой по вхождению подстроки в начало затем по алфавиту
+    С сортировкой по вхождению подстроки в начало, затем по алфавиту
     """
     def filter_queryset(self, request, queryset, view):
         name = request.query_params.get('name')
@@ -23,6 +23,10 @@ class IngredientFilterBackend(BaseFilterBackend):
 class RecipeFilterBackend(BaseFilterBackend):
     """
     Бэкэнд для филтрации тэгов
+    Параметры запроса:
+    is_favorited: -> str['true', 'false', None]: Рецепт в избранном
+    is_in_shopping_cart: -> str['true', 'false', None]: Рецепт в корзине
+    tags: -> **str: Перечень тэгов. Могут повторяться /?tags=value1&tags=value2
     """
     def filter_queryset(self, request, queryset, view):
         filter = {}

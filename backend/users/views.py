@@ -1,4 +1,4 @@
-from backend.paginator import ResultsSetPagination
+from recipes.paginator import ResultsSetPagination
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 from rest_framework import status

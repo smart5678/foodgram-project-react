@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
     IsAuthenticated
 from rest_framework.response import Response
 
-from backend.paginator import ResultsSetPagination
+from recipes.paginator import ResultsSetPagination
 from cart.models import Cart
 from cart.serializers import CartRecipeSerializer
 from social.models import Favorite
@@ -97,7 +97,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class TagViewSet(viewsets.ModelViewSet):
     """
-    ViewSet для работы с тэгами
+    Простой ViewSet тэгов
     """
     model = Tag
     serializer_class = TagSerializer
