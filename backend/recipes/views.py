@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Case, When, Value, Sum
 from django.contrib.auth import get_user_model
@@ -20,28 +22,40 @@ from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer
 USER = get_user_model()
 
 
+class IngredientFilterBackend(BaseFilterBackend):
+    """
+    Бэкэнд для фильтрации ингредиентов
+    С сортировкой по вхождению подстроки в начало затем по алфавиту
+    """
+    def filter_queryset(self, request, queryset, view):
+        name = request.query_params.get('name')
+        if name:
+            queryset = queryset.filter(name__contains=name)
+            return queryset.annotate(
+                is_start=Case(
+                    When(name__startswith=name, then=Value(1)),
+                    default=Value(2)
+                    ),
+                ).order_by('is_start')
+        return queryset
+
+
 class RecipeFilterBackend(BaseFilterBackend):
     """
     Бэкэнд для филтрации тэгов
     """
     def filter_queryset(self, request, queryset, view):
+        filter = {}
         tags = request.query_params.getlist('tags')
         is_favorited = request.query_params.get('is_favorited')
         is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
         if is_favorited and is_favorited == 'true':
-            favorited = queryset.filter(favorited__user=request.user)
-        else:
-            favorited = queryset
+            filter['favorited__user'] = request.user
         if tags:
-            tagged = favorited.filter(tags__slug__in=tags).distinct()
-        else:
-            tagged = favorited
-        if is_in_shopping_cart:
-            shopped = tagged.filter(purchased__user=request.user)
-        else:
-            shopped = tagged
-
-        return shopped
+            filter['tags__slug__in'] = tags
+        if is_in_shopping_cart and is_in_shopping_cart:
+            filter['purchased__user'] = request.user
+        return queryset.filter(**filter).distinct()
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -137,42 +151,11 @@ class IngredientViewSet(viewsets.ModelViewSet):
     model = Ingredient
     serializer_class = IngredientSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Ingredient.objects.all()
+    filter_backends = [IngredientFilterBackend, ]
 
-    def get_queryset(self):
-        name = self.request.query_params.get('name')
-        if name:
-            queryset = Ingredient.objects.filter(name__contains=name)
-            return queryset.annotate(
-                is_start=Case(
-                    When(name__startswith=name, then=Value(1)),
-                    default=Value(2)
-                    ),
-                ).order_by('is_start')
-
-        return Ingredient.objects.all()
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name', 'measurement_unit')
 
 
-class IngredientFilterBackend(BaseFilterBackend):
-    """
-    Бэкэнд для фильтрации тэгов
-    """
-    def filter_queryset(self, request, queryset, view):
-        tags = request.query_params.getlist('tags')
-        is_favorited = request.query_params.get('is_favorited')
-        is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
-        if is_favorited and is_favorited == 'true':
-            favorited = queryset.filter(favorited__user=request.user)
-        else:
-            favorited = queryset
-        if tags:
-            tagged = favorited.filter(tags__slug__in=tags).distinct()
-        else:
-            tagged = favorited
-        if is_in_shopping_cart:
-            shopped = tagged.filter(purchased__user=request.user)
-        else:
-            shopped = tagged
-
-
-
-        return shopped
