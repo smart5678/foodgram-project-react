@@ -5,9 +5,11 @@ class CustomUserManager(BaseUserManager):
     """
     Custom user model manager
     Поле почты становится обязательным и уникальным
-    Добавляются роли (role) админ, модератор, пользователь
+    Добавляются роли (role) админ, пользователь
     """
-    def create_user(self, email, password, first_name, last_name, **extra_fields):
+    def create_user(
+            self, email, password, first_name, last_name, **extra_fields
+    ):
         """
         Create and save a User with the given email and password.
         """

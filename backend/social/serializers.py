@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
-
 from recipes.models import Recipe
 from recipes.serializers import SimpleRecipeSerializer
+from rest_framework import serializers
 from social.models import Favorite, Follow
 from users.serializers import UserSerializer
 
@@ -18,7 +17,9 @@ class SubscriberSerializer(UserSerializer):
         :param author: пользователь для которого берутся рецепты
         :return: сериализованные данные рецептов автора
         """
-        recipes_limit = self.context.get('request').query_params.get('recipes_limit')
+        recipes_limit = self.context.get(
+            'request'
+        ).query_params.get('recipes_limit')
         if recipes_limit is not None:
             query = Recipe.objects.filter(author=author)[:int(recipes_limit)]
         else:
@@ -50,6 +51,7 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
                 message="Рецепт уже добавлен в избранное"
             )
         ]
+
 
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:

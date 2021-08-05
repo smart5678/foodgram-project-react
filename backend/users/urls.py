@@ -1,6 +1,5 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
 from users.views import UserViewSet
 
 router = DefaultRouter()
@@ -12,5 +11,3 @@ urlpatterns = [
     path('auth/', include('djoser.urls.authtoken')),
     path('auth/', include('djoser.urls.jwt')),
 ]
-
-# urlpatterns += [path('', include('djoser.urls')),]

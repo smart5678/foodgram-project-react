@@ -1,9 +1,6 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer
 from rest_framework.serializers import SerializerMethodField
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
-    IsAuthenticated
 
 USER = get_user_model()
 

@@ -1,16 +1,11 @@
-from django.core.exceptions import ObjectDoesNotExist
-
-from recipes.mixins import set_action
-from recipes.paginator import ResultsSetPagination
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
-from rest_framework import status
+from recipes.mixins import set_action
+from recipes.paginator import ResultsSetPagination
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
-    IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from social.models import Follow
-from social.serializers import SubscriberSerializer, FollowSerializer
+from social.serializers import FollowSerializer, SubscriberSerializer
 from users.permissions import MeNotAuthenticated
 from users.serializers import UserSerializer
 
@@ -23,7 +18,8 @@ class UserViewSet(UserViewSet):
     queryset = USER.objects.all()
     permission_classes = [MeNotAuthenticated, IsAuthenticatedOrReadOnly]
 
-    @action(methods=['get', 'delete'], detail=True, permission_classes=[IsAuthenticatedOrReadOnly],
+    @action(methods=['get', 'delete'], detail=True,
+            permission_classes=[IsAuthenticatedOrReadOnly],
             url_path='subscribe', url_name='subscribe')
     def set_subscribe(self, request, id=None):
         return set_action(
@@ -35,4 +31,3 @@ class UserViewSet(UserViewSet):
             follow='user',
             followed='author'
         )
-
