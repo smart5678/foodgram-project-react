@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
-    IsAuthenticated
+    IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from recipes.paginator import ResultsSetPagination
@@ -30,7 +30,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     model = Recipe
     serializer_class = RecipeSerializer
     pagination_class = ResultsSetPagination
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     queryset = Recipe.objects.prefetch_related('ingredients__ingredient').all().order_by('-pk')
     filter_backends = [DjangoFilterBackend, RecipeFilterBackend]
     filterset_fields = ['author', ]
@@ -80,7 +80,7 @@ class TagViewSet(viewsets.ModelViewSet):
     model = Tag
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [ReadOnly]
 
 
 class IngredientViewSet(viewsets.ModelViewSet):

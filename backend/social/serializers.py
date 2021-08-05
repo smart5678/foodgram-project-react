@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from recipes.models import Recipe
 from recipes.serializers import SimpleRecipeSerializer
-from social.models import Favorite
+from social.models import Favorite, Follow
 from users.serializers import UserSerializer
 
 USER = get_user_model()
@@ -48,5 +48,17 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
                 queryset=model.objects.all(),
                 fields=('favorite_recipe', 'user'),
                 message="Рецепт уже добавлен в избранное"
+            )
+        ]
+
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = '__all__'
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=model.objects.all(),
+                fields=('user', 'author'),
+                message="Вы уже подписаны"
             )
         ]

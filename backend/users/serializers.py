@@ -1,14 +1,18 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
+from djoser.serializers import UserSerializer
+from rest_framework.serializers import SerializerMethodField
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
+    IsAuthenticated
 
 USER = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(UserSerializer):
     """
     Сериализатор пользователя
     """
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = SerializerMethodField()
 
     def get_is_subscribed(self, author):
         """
@@ -29,4 +33,3 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed'
         )
-

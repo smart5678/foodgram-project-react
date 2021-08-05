@@ -90,7 +90,11 @@ DJOSER = {
     'SERIALIZERS': {
         'user': 'users.serializers.UserSerializer',
         'current_user': 'users.serializers.UserSerializer',
-    }
+    },
+    'HIDE_USERS': False,
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly']
+    },
 }
 
 AUTH_PASSWORD_VALIDATORS = [
