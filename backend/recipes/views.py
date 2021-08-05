@@ -7,7 +7,7 @@ from recipes.paginator import ResultsSetPagination
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly)
+    IsAuthenticated, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from social.models import Favorite
 from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
@@ -29,7 +29,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     model = Recipe
     serializer_class = RecipeSerializer
     pagination_class = ResultsSetPagination
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Recipe.objects.prefetch_related(
         'ingredients__ingredient'
     ).all().order_by('-pk')
