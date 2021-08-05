@@ -10,21 +10,19 @@
 ### Алгоритм авторизации пользователей
 Используется аутентификация по токену с [djoiser](https://djoser.readthedocs.io/en/latest/index.html)
 
+Все запросы от имени пользователя должны выполняться с заголовком "Authorization: Token TOKENVALUE"
 
 ### Админка
-Доступна пользователю с правами администратора
+Доступна пользователю с правами администратора (is_staff)
 
-### Ресурсы API YaMDb
-- Ресурс AUTH: аутентификация.
-- Ресурс USERS: пользователи.
-- Ресурс TITLES: произведения, к которым пишут отзывы (определённый фильм, книга или песенка).
-- Ресурс CATEGORIES: категории (типы) произведений («Фильмы», «Книги», «Музыка»).
-- Ресурс GENRES: жанры произведений. Одно произведение может быть привязано к нескольким жанрам.
-- Ресурс REVIEWS: отзывы на произведения. Отзыв привязан к определённому произведению.
-- Ресурс COMMENTS: комментарии к отзывам. Комментарий привязан к определённому отзыву.
+### Workflows
+Проект доступен для запуска в деплой с GitHub workflow
 
-Каждый ресурс описан в [redoc](http://enjoy_yamdb.co.vu/redoc): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
+Инструкция в [workflow](/workflow.md)
 
-### You can test this project by [test_yamdb](http://enjoy_yamdb.co.vu/api/v1)
+### Ресурсы API
+Ресурсы описаны в [redoc](http://just-eat-it.co.vu/api/docs): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
 
-![yamdb workflow](https://github.com/smart5678/yamdb_final/actions/workflows/yamdb_workflow.yaml/badge.svg)
+### You can test API [just-eat-it/api](http://just-eat-it.co.vu/api/) and site [just-eat-it](http://just-eat-it.co.vu/api/)
+
+![foodgram workflow](https://github.com/smart5678/foodgram-project-react/actions/workflows/workflow.yaml/badge.svg)
