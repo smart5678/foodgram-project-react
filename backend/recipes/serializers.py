@@ -1,14 +1,11 @@
-from django.shortcuts import get_object_or_404
 import base64
 
 from django.core.files.base import ContentFile
-from rest_framework import serializers, status
-from rest_framework.response import Response
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-
-from social.models import Favorite
-from .models import Recipe, Ingredient, RecipeIngredients, Tag
 from users.serializers import UserSerializer
+
+from .models import Ingredient, Recipe, RecipeIngredients, Tag
 
 
 class IngredientSerializer(ModelSerializer):
@@ -21,7 +18,10 @@ class IngredientSerializer(ModelSerializer):
 class IngredientRecipeSerializer(ModelSerializer):
     id = serializers.IntegerField(read_only=True, source="ingredient.pk")
     name = serializers.CharField(read_only=True, source="ingredient.name")
-    measurement_unit = serializers.CharField(read_only=True, source="ingredient.measurement_unit")
+    measurement_unit = serializers.CharField(
+        read_only=True,
+        source="ingredient.measurement_unit"
+    )
 
     class Meta:
         model = RecipeIngredients
@@ -47,15 +47,26 @@ class RecipeSerializer(ModelSerializer):
     В update и create дополнительно обновляются связанные модели ингредиентов.
     """
     author = UserSerializer()
-    ingredients = IngredientRecipeSerializer(many=True, read_only=True, partial=False)
     tags = TagSerializer(many=True, read_only=True, partial=False)
-
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    ingredients = IngredientRecipeSerializer(
+        many=True,
+        read_only=True,
+        partial=False
+    )
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id', 'tags', 'author', 'name', 'text', 'cooking_time',
+            'ingredients', 'image', 'is_favorited', 'is_in_shopping_cart'
+        )
 
     def get_is_favorited(self, recipe):
         user = self.context['request'].user
-        if user.is_authenticated and user.favorites.filter(favorite_recipe=recipe):
+        if (user.is_authenticated
+                and user.favorites.filter(favorite_recipe=recipe)):
             return True
         return False
 
@@ -66,6 +77,10 @@ class RecipeSerializer(ModelSerializer):
         return False
 
     def update(self, instance, validated_data):
+        """
+        update для сохранения связанных записей
+        Рецепт модифицируется, только при правильности ингедиентов
+        """
         ingredient_list = []
         for ingredient in validated_data.pop('ingredients'):
             ingredient_list.append({
@@ -74,13 +89,14 @@ class RecipeSerializer(ModelSerializer):
                 'amount': ingredient['ingredient']['amount'],
             })
         ingredient_serializer = RecipeIngredientsSerializer(
-            data=ingredient_list, many=True
+            data=ingredient_list,
+            many=True
         )
         recipe_serializer = SimpleRecipeSerializer(
-            data=validated_data, partial=True
+            data=validated_data,
+            partial=True
         )
-        valid = ingredient_serializer.is_valid()
-        valid &= recipe_serializer.is_valid()
+        valid = ingredient_serializer.is_valid() & recipe_serializer.is_valid()
         if valid:
             super().update(instance, validated_data)
             self.instance.ingredients.all().delete()
@@ -93,7 +109,7 @@ class RecipeSerializer(ModelSerializer):
 
     def create(self, validated_data):
         """
-        Модифицированный create для сохранения связанных записей
+        create для сохранения связанных записей
         Рецепт содается, только при правильности ингедиентов
         """
         ingredients = validated_data.pop('ingredients')
@@ -126,7 +142,8 @@ class RecipeSerializer(ModelSerializer):
 
     def to_internal_value(self, data):
         """
-        Возвращает список ингредиентов к формату сериализатора модели ингредиентов
+        Возвращает список ингредиентов к формату
+        сериализатора модели ингредиентов
         Декодирует картинку из base64, отдает путь в image модели.
         """
         internal_data = data
@@ -134,7 +151,10 @@ class RecipeSerializer(ModelSerializer):
             image = internal_data.pop('image')
             format, imgstr = image.split(';base64,')  # format ~= data:image/X,
             ext = format.split('/')[-1]  # guess file extension
-            image_file = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+            image_file = ContentFile(
+                base64.b64decode(imgstr),
+                name='temp.' + ext
+            )
             internal_data['image'] = image_file
 
         ingredients = data.pop('ingredients')
@@ -144,13 +164,6 @@ class RecipeSerializer(ModelSerializer):
         internal_data['ingredients'] = ingredients_internal
 
         return internal_data
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id', 'tags', 'author', 'name', 'text', 'cooking_time',
-            'ingredients', 'image', 'is_favorited', 'is_in_shopping_cart'
-        )
 
 
 class SimpleRecipeSerializer(UserSerializer):

@@ -43,7 +43,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return set_action(
             self, request, pk,
             acted_serializer=FavoriteRecipeSerializer,
-            ressponse_serializer=SimpleRecipeSerializer,
+            response_serializer=SimpleRecipeSerializer,
             acted_model=Favorite,
             response_model=Recipe,
             follow='user',
@@ -57,7 +57,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return set_action(
             self, request, pk,
             acted_serializer=CartRecipeSerializer,
-            ressponse_serializer=SimpleRecipeSerializer,
+            response_serializer=SimpleRecipeSerializer,
             acted_model=Cart,
             response_model=Recipe,
             follow='user',

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Ingredient, Tag, RecipeIngredients, Recipe
+
+from .models import Ingredient, Recipe, RecipeIngredients, Tag
 
 
 @admin.register(RecipeIngredients)
@@ -34,6 +35,9 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class IngredientInline(admin.TabularInline):
+    """
+    Инлайн редактирование игредиентов в рецепте
+    """
     model = RecipeIngredients
 
 
@@ -53,5 +57,3 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('author', 'name', 'tags')
     inlines = [IngredientInline]
     empty_value_display = '-пусто-'
-
-

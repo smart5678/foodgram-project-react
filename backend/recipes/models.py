@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, MaxValueValidator, \
-    integer_validator
+from django.core.validators import MinValueValidator
 from django.db import models
 
 USER = get_user_model()
@@ -58,7 +57,6 @@ class Recipe(models.Model):
     )
     image = models.ImageField(upload_to='images/', blank=False, null=True)
 
-
     class Meta:
         ordering = ['name']
         verbose_name = 'Рецепт'
@@ -75,7 +73,6 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         'Название',
-        #unique=True,
         blank=False,
         null=False,
         max_length=200
@@ -109,9 +106,11 @@ class RecipeIngredients(models.Model):
         related_name='recipe',
         verbose_name='Ингредиент'
     )
-    amount = models.IntegerField('Количество в рецепте', blank=False, validators=[
-            MinValueValidator(1, 'Не надо жадничать'),
-        ],)
+    amount = models.IntegerField(
+        'Количество в рецепте',
+        blank=False,
+        validators=[MinValueValidator(1, 'Не надо жадничать'), ]
+    )
 
     class Meta:
         constraints = [models.UniqueConstraint(

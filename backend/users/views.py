@@ -25,7 +25,7 @@ class UserViewSet(UserViewSet):
         return set_action(
             self, request, id,
             acted_serializer=FollowSerializer,
-            ressponse_serializer=SubscriberSerializer,
+            response_serializer=SubscriberSerializer,
             acted_model=Follow,
             response_model=USER,
             follow='user',

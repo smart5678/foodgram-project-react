@@ -7,6 +7,6 @@ from cart.models import Cart
 class CartAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'user')
     list_filter = ('recipe', 'user')
-    fields = (('recipe','user'),)
+    fields = (('recipe', 'user'),)
     list_editable = ('recipe', 'user', )
     empty_value_display = '-пусто-'

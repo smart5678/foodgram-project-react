@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 def set_action(
         self, request, recipe_pk,
-        acted_serializer=None, ressponse_serializer=None,
+        acted_serializer=None, response_serializer=None,
         acted_model=None, response_model=None,
         follow=None, followed=None
 ):
@@ -14,7 +14,10 @@ def set_action(
         serializer = acted_serializer(data=data, partial=False)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            recipe_serializer = ressponse_serializer(response_model.objects.get(id=recipe_pk), context={'request': request})
+            recipe_serializer = response_serializer(
+                response_model.objects.get(id=recipe_pk),
+                context={'request': request}
+            )
             return Response(recipe_serializer.data)
         else:
             raise serializers.ValidationError(detail=serializer.errors)
@@ -25,6 +28,6 @@ def set_action(
         except ObjectDoesNotExist:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data={'error': f'В {acted_model.__name__} рецепта нет'},
+                data={'error': f'В {acted_model.__name__} связи нет'},
             )
         return Response(status=status.HTTP_204_NO_CONTENT)
