@@ -18,11 +18,11 @@
 ### Workflows
 Проект доступен для запуска в деплой с GitHub workflow
 
-Инструкция в [workflow](/workflow.md)
+Инструкция в [workflow](/WORKFLOW.md)
 
 ### Ресурсы API
-Ресурсы описаны в [redoc](http://just-eat-it.co.vu/api/docs): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
+Ресурсы описаны в [redoc](http://justeatit.co.vu/api/docs): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
 
-### You can test API [just-eat-it/api](http://just-eat-it.co.vu/api/) and site [just-eat-it](http://just-eat-it.co.vu/api/)
+### You can test API [just-eat-it/api](http://justeatit.co.vu/api/) and site [just-eat-it](http://just-eat-it.co.vu/api/)
 
 ![foodgram workflow](https://github.com/smart5678/foodgram-project-react/actions/workflows/workflow.yaml/badge.svg)

@@ -1,11 +1,17 @@
 version: '3.3'
 
 volumes:
-#  postgres_data:
+  postgres_data:
   static_value:
   media_value:
 
 services:
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./backend/.env
 
   frontend:
     build:
@@ -13,6 +19,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
+
   nginx:
     image: nginx:1.19.3
     ports:
@@ -24,19 +31,15 @@ services:
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
       - static_value:/usr/share/nginx/html/api_static/
       - media_value:/usr/share/nginx/html/media/      
-    extra_hosts:
-      - host.docker.internal:host-gateway
     depends_on:
       - web
 
   web:
-    build: ../backend/.
-    restart: always
-    command: python /code/manage.py runserver 0:8000
-#    ports:
-#      - "8000:8000"
+    image: smart5678/foodgram:latest
     volumes:
       - static_value:/code/static/
       - media_value:/code/media/
-#    env_file:
-#      - ./.env 
+    depends_on:
+      - db
+    env_file:
+      - ./.env
