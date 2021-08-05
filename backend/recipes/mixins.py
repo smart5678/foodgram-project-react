@@ -17,9 +17,7 @@ def set_action(
             recipe_serializer = ressponse_serializer(response_model.objects.get(id=recipe_pk), context={'request': request})
             return Response(recipe_serializer.data)
         else:
-            raise serializers.ValidationError(
-                {'error': serializer.errors}
-            )
+            raise serializers.ValidationError(detail=serializer.errors)
     else:
         try:
             filter = {follow: request.user, followed+'_id': recipe_pk}
