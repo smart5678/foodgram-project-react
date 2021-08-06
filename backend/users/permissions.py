@@ -6,4 +6,6 @@ class MeNotAuthenticated(permissions.BasePermission):
     Редактирование возможно только определённым пользователям
     """
     def has_permission(self, request, view):
-        return request.user.is_anonymous and view.action == 'me'
+        if request.user.is_anonymous and view.action == 'me':
+            return False
+        return True
