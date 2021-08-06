@@ -25,4 +25,4 @@
 
 ### You can test API [justeatit.co.vu/api](http://justeatit.co.vu/api/) and site [justeatit.co.vu](http://justeatit.co.vu/)
 
-![foodgram workflow](https://github.com/smart5678/foodgram-project-react/actions/workflows/workflow.yaml/badge.svg)
+![foodgram workflow](https://github.com/smart5678/foodgram-project-react/actions/workflows/main.yaml/badge.svg)
