@@ -2,8 +2,7 @@ from django.db.models import Model
 from rest_framework import status, serializers
 from rest_framework.response import Response
 
-from recipes.serializers import RecipeIngredientsSerializer, \
-    SimpleRecipeSerializer
+
 
 
 def set_action(
@@ -41,6 +40,8 @@ class CreateUpdateRecipeMixin:
         update для сохранения связанных записей
         Рецепт модифицируется, только при правильности ингедиентов
         """
+        from recipes.serializers import RecipeIngredientsSerializer, \
+            SimpleRecipeSerializer
         ingredient_list = []
         for ingredient in validated_data.pop('ingredients'):
             ingredient_list.append({
@@ -72,6 +73,8 @@ class CreateUpdateRecipeMixin:
         create для сохранения связанных записей
         Рецепт содается, только при правильности ингедиентов
         """
+        from recipes.serializers import RecipeIngredientsSerializer, \
+            SimpleRecipeSerializer
         ingredients = validated_data.pop('ingredients')
         recipe_serializer = SimpleRecipeSerializer(
             data=validated_data, partial=True
