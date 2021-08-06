@@ -6,8 +6,8 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
-#    steps:
-#      - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 #      - name: Set up Python setup
 #        uses: actions/setup-python@v2
 #        with:
