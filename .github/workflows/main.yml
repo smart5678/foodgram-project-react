@@ -22,6 +22,7 @@ jobs:
           # flake8 with plugin install
           pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
           # install depencies
+          ls
           pip install -r backend/requirements.txt
 
       - name: Test with flake8 and Django tests
