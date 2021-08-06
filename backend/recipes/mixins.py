@@ -21,7 +21,7 @@ def set_action(
         return Response(recipe_serializer.data)
     else:
         try:
-            filter = {follow: request.user, followed+'_id': recipe_pk}
+            filter = {follow: request.user, followed + '_id': recipe_pk}
             acted_model.objects.get(**filter).delete()
         except Model.DoesNotExist:
             return Response(

@@ -1,25 +1,22 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly
-)
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from cart.models import Cart
 from cart.serializers import CartRecipeSerializer
+from recipes.paginator import ResultsSetPagination
 from social.models import Favorite
 from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
-from recipes.paginator import ResultsSetPagination
+
 from .backends import IngredientFilterBackend, RecipeFilterBackend
 from .mixins import set_action
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
-
 
 USER = get_user_model()
 

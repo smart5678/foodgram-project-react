@@ -12,11 +12,11 @@ class IngredientFilterBackend(BaseFilterBackend):
         if name:
             queryset = queryset.filter(name__icontains=name)
             return queryset.annotate(
-                is_start=Case(
-                    When(name__istartswith=name, then=Value(1)),
-                    default=Value(2)
-                    ),
-                ).order_by('is_start')
+                is_start=Case(When(
+                    name__istartswith=name,
+                    then=Value(1)
+                ), default=Value(2)),
+            ).order_by('is_start')
         return queryset
 
 
