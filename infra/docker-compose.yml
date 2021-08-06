@@ -5,7 +5,6 @@ volumes:
   static_value:
   media_value:
 
-
 services:
   db:
     image: postgres:latest
