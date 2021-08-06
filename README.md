@@ -23,6 +23,6 @@
 ### Ресурсы API
 Ресурсы описаны в [redoc](http://justeatit.co.vu/api/docs): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
 
-### You can test API [just-eat-it/api](http://justeatit.co.vu/api/) and site [just-eat-it](http://justeatit.co.vu/api/)
+### You can test API [justeatit.co.vu/api](http://justeatit.co.vu/api/) and site [justeatit.co.vu](http://justeatit.co.vu/)
 
 ![foodgram workflow](https://github.com/smart5678/foodgram-project-react/actions/workflows/workflow.yaml/badge.svg)
