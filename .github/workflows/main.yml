@@ -8,6 +8,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: backend/
       - name: Set up Python setup
         uses: actions/setup-python@v2
         with:
@@ -20,14 +22,14 @@ jobs:
           # flake8 with plugin install
           pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
           # install depencies
-          pip install -r backend/requirements.txt
+          pip install -r requirements.txt
 
       - name: Test with flake8 and Django tests
         run: |
           # flake8 tests
           python -m flake8
           # Start pytest
-          backend/pytest
+          pytest
 
   build_and_push_to_docker_hub:
     name: Push Docker image to Docker hub
