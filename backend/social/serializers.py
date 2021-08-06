@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
+
 from recipes.models import Recipe
 from recipes.serializers import SimpleRecipeSerializer
-from rest_framework import serializers
 from social.models import Favorite, Follow
 from users.serializers import UserSerializer
 
@@ -48,7 +49,7 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
             serializers.UniqueTogetherValidator(
                 queryset=model.objects.all(),
                 fields=('favorite_recipe', 'user'),
-                message="Рецепт уже добавлен в избранное"
+                message='Рецепт уже добавлен в избранное'
             )
         ]
 
@@ -61,6 +62,6 @@ class FollowSerializer(serializers.ModelSerializer):
             serializers.UniqueTogetherValidator(
                 queryset=model.objects.all(),
                 fields=('user', 'author'),
-                message="Вы уже подписаны"
+                message='Вы уже подписаны'
             )
         ]

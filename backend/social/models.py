@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+
 from recipes.models import Recipe
 
 USER = get_user_model()
@@ -34,8 +35,8 @@ class Follow(models.Model):
         ), ]
 
     def __str__(self):
-        return (f"Пользователь {self.user}"
-                f" подписан на автора рецепта {self.author}")
+        return (f'Пользователь {self.user}'
+                f' подписан на автора рецепта {self.author}')
 
 
 class Favorite(models.Model):

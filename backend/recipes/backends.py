@@ -10,10 +10,10 @@ class IngredientFilterBackend(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         name = request.query_params.get('name')
         if name:
-            queryset = queryset.filter(name__contains=name)
+            queryset = queryset.filter(name__icontains=name)
             return queryset.annotate(
                 is_start=Case(
-                    When(name__startswith=name, then=Value(1)),
+                    When(name__istartswith=name, then=Value(1)),
                     default=Value(2)
                     ),
                 ).order_by('is_start')
@@ -33,10 +33,10 @@ class RecipeFilterBackend(BaseFilterBackend):
         tags = request.query_params.getlist('tags')
         is_favorited = request.query_params.get('is_favorited')
         is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
-        if is_favorited and is_favorited == 'true':
+        if is_favorited == 'true':
             filter['favorited__user'] = request.user
         if tags:
             filter['tags__slug__in'] = tags
-        if is_in_shopping_cart and is_in_shopping_cart == 'true':
+        if is_in_shopping_cart == 'true':
             filter['purchased__user'] = request.user
         return queryset.filter(**filter).distinct()

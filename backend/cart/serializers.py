@@ -1,5 +1,6 @@
-from cart.models import Cart
 from rest_framework import serializers
+
+from cart.models import Cart
 
 
 class CartRecipeSerializer(serializers.ModelSerializer):
@@ -10,6 +11,6 @@ class CartRecipeSerializer(serializers.ModelSerializer):
             serializers.UniqueTogetherValidator(
                 queryset=model.objects.all(),
                 fields=('recipe', 'user'),
-                message="Рецепт уже добавлен в корзину"
+                message='Рецепт уже добавлен в корзину'
             )
         ]

@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import Ingredient, Recipe, RecipeIngredients, Tag
+from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
-@admin.register(RecipeIngredients)
+@admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'ingredient', 'amount')
     list_filter = ('recipe', 'ingredient')
@@ -38,7 +38,7 @@ class IngredientInline(admin.TabularInline):
     """
     Инлайн редактирование игредиентов в рецепте
     """
-    model = RecipeIngredients
+    model = RecipeIngredient
 
 
 @admin.register(Recipe)

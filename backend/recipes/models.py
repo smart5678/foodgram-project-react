@@ -36,14 +36,13 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         USER,
         on_delete=models.CASCADE,
-        related_name="recipes",
+        related_name='recipes',
         verbose_name='Автор рецепта'
     )
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Тэги',
         related_name="recipes",
-        blank=False
     )
     name = models.CharField('Название', max_length=200, blank=False)
     text = models.TextField('Описание', blank=False)
@@ -53,7 +52,6 @@ class Recipe(models.Model):
             MinValueValidator(1, 'Быстрее не получится'),
             # integer_validator
         ],
-        blank=False
     )
     image = models.ImageField(upload_to='images/', blank=False, null=True)
 
@@ -73,14 +71,12 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         'Название',
-        blank=False,
         null=False,
         max_length=200
     )
     measurement_unit = models.CharField(
         'Единицы измерения',
         max_length=200,
-        blank=False
     )
 
     class Meta:
@@ -92,7 +88,7 @@ class Ingredient(models.Model):
         return f'{self.name}, {self.measurement_unit}'
 
 
-class RecipeIngredients(models.Model):
+class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -103,12 +99,11 @@ class RecipeIngredients(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='ingredients',
         verbose_name='Ингредиент'
     )
     amount = models.IntegerField(
         'Количество в рецепте',
-        blank=False,
         validators=[MinValueValidator(1, 'Не надо жадничать'), ]
     )
 

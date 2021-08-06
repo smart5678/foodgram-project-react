@@ -1,21 +1,25 @@
-from cart.models import Cart
-from cart.serializers import CartRecipeSerializer
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.paginator import ResultsSetPagination
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly)
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly
+)
 from rest_framework.response import Response
+
+from cart.models import Cart
+from cart.serializers import CartRecipeSerializer
 from social.models import Favorite
 from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
-
+from recipes.paginator import ResultsSetPagination
 from .backends import IngredientFilterBackend, RecipeFilterBackend
 from .mixins import set_action
-from .models import Ingredient, Recipe, RecipeIngredients, Tag
+from .models import Ingredient, Recipe, RecipeIngredient, Tag
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
+
 
 USER = get_user_model()
 
@@ -73,13 +77,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=request.user
         ).values_list('recipe__id')
 
-        ingredients = RecipeIngredients.objects.select_related(
-            'ingredient'
-        ).filter(
-            recipe__id__in=recipes_in_cart
-        ).values(
-            'ingredient__name', 'ingredient__measurement_unit'
-        ).annotate(total_amount=Sum('amount'))
+        ingredients = (
+            RecipeIngredient.objects.select_related('ingredient')
+            .filter(recipe__id__in=recipes_in_cart)
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(total_amount=Sum('amount'))
+        )
 
         return Response(ingredients)
 
@@ -91,7 +94,6 @@ class TagViewSet(viewsets.ModelViewSet):
     model = Tag
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
-    # permission_classes = [ReadOnly]
 
 
 class IngredientViewSet(viewsets.ModelViewSet):

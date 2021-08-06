@@ -2,47 +2,46 @@ import base64
 
 from django.core.files.base import ContentFile
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
+
 from users.serializers import UserSerializer
+from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
-from .models import Ingredient, Recipe, RecipeIngredients, Tag
 
-
-class IngredientSerializer(ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
 
-class IngredientRecipeSerializer(ModelSerializer):
-    id = serializers.IntegerField(read_only=True, source="ingredient.pk")
-    name = serializers.CharField(read_only=True, source="ingredient.name")
+class IngredientRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True, source='ingredient.pk')
+    name = serializers.CharField(read_only=True, source='ingredient.name')
     measurement_unit = serializers.CharField(
         read_only=True,
-        source="ingredient.measurement_unit"
+        source='ingredient.measurement_unit'
     )
 
     class Meta:
-        model = RecipeIngredients
+        model = RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
-class RecipeIngredientsSerializer(ModelSerializer):
+class RecipeIngredientsSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = RecipeIngredients
+        model = RecipeIngredient
         fields = '__all__'
 
 
-class TagSerializer(ModelSerializer):
+class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
         fields = '__all__'
 
 
-class RecipeSerializer(ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer):
     """
     В update и create дополнительно обновляются связанные модели ингредиентов.
     """
@@ -65,16 +64,13 @@ class RecipeSerializer(ModelSerializer):
 
     def get_is_favorited(self, recipe):
         user = self.context['request'].user
-        if (user.is_authenticated
-                and user.favorites.filter(favorite_recipe=recipe)):
-            return True
-        return False
+        return (user.is_authenticated
+                and user.favorites.filter(favorite_recipe=recipe).exists())
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context['request'].user
-        if user.is_authenticated and user.buyer.filter(recipe=recipe):
-            return True
-        return False
+        return (user.is_authenticated
+                and user.buyer.filter(recipe=recipe).exists())
 
     def update(self, instance, validated_data):
         """
