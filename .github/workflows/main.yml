@@ -48,8 +48,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Push to Docker hub
         run: |
-        cd backend
-        ls
+          cd backend
+          ls
         uses: docker/build-push-action@v2
         with:
           push: true
