@@ -21,7 +21,7 @@
 Инструкция в [workflow](/WORKFLOW.md)
 
 ### Ресурсы API
-Ресурсы описаны в [redoc](http://justeatit.co.vu/api/docs): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
+Ресурсы описаны в [redoc](http://justeatit.co.vu/api/docs/): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
 
 ### You can test API [justeatit.co.vu/api](http://justeatit.co.vu/api/) and site [justeatit.co.vu](http://justeatit.co.vu/)
 
