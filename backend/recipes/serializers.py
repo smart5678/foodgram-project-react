@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 from rest_framework import serializers
 
 from users.serializers import UserSerializer
+
 from .mixins import CreateUpdateMixin
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
@@ -73,7 +74,6 @@ class RecipeSerializer(CreateUpdateMixin, serializers.ModelSerializer):
         return (user.is_authenticated
                 and user.buyer.filter(recipe=recipe).exists())
 
-
     def to_internal_value(self, data):
         """
         Возвращает список ингредиентов к формату
@@ -92,5 +92,3 @@ class RecipeSerializer(CreateUpdateMixin, serializers.ModelSerializer):
             internal_data['image'] = image_file
 
         return internal_data
-
-

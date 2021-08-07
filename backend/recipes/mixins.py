@@ -1,8 +1,8 @@
 from django.db.models import Model
-from rest_framework import status, serializers
+from rest_framework import serializers, status
 from rest_framework.response import Response
 
-from recipes.models import RecipeIngredient, Recipe
+from recipes.models import Recipe, RecipeIngredient
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
@@ -69,7 +69,10 @@ class CreateUpdateMixin:
         Рецепт содается, только при правильности ингедиентов
         """
         ingredients = validated_data.pop('ingredients')
-        recipe_serializer = SimpleRecipeSerializer(data=validated_data, partial=True)
+        recipe_serializer = SimpleRecipeSerializer(
+            data=validated_data,
+            partial=True
+        )
         validated_data['author'] = self.context['request'].user
         recipe = recipe_serializer.create(validated_data)
 

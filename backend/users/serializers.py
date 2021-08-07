@@ -11,14 +11,6 @@ class UserSerializer(UserSerializer):
     """
     is_subscribed = SerializerMethodField()
 
-    def get_is_subscribed(self, author):
-        """
-        false for not authentificated and self
-        """
-        user = self.context['request'].user
-        return (user.is_authenticated
-                and user.subscriber.filter(author=author).exists())
-
     class Meta:
         model = USER
         fields = (
@@ -29,3 +21,11 @@ class UserSerializer(UserSerializer):
             'last_name',
             'is_subscribed'
         )
+
+    def get_is_subscribed(self, author):
+        """
+        false for not authentificated and self
+        """
+        user = self.context['request'].user
+        return (user.is_authenticated
+                and user.subscriber.filter(author=author).exists())
