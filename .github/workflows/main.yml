@@ -8,28 +8,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-#      - name: Set up Python setup
-#        uses: actions/setup-python@v2
-#        with:
-#          python-version: 3.8
-#      - name: Install depencies
-#        run: |
-#          cd backend
-#          # pip update
-#          python -m pip install --upgrade pip
-#          # flake8 with plugin install
-#          pip install pytest pytest-django flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
-#          # install depencies
-#          ls backend
-#          pip install -r requirements.txt
-#
-#      - name: Test with flake8 and Django tests
-#        run: |
-#          cd backend
-#          # flake8 tests
-#          python -m flake8
-#          # Start pytest
-#          pytest
+      - name: Set up Python setup
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install depencies
+        run: |
+          cd backend
+          # pip update
+          python -m pip install --upgrade pip
+          # flake8 with plugin install
+          pip install pytest pytest-django flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
+          # install depencies
+          ls backend
+          pip install -r requirements.txt
+
+      - name: Test with flake8 and Django tests
+        run: |
+          cd backend
+          # flake8 tests
+          python -m flake8
+          # Start pytest
+          pytest
 
 
   build_and_push_to_docker_hub:

@@ -86,7 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         tempfile = NamedTemporaryFile(suffix='.pdf')
         get_invoice(ingredients, tempfile)
         wrapper = FileWrapper(tempfile)
-        response = Response(wrapper, content_type='mime_type')
+        response = Response(wrapper, content_type='application/pdf')
         return response
 
 
