@@ -76,8 +76,6 @@ class RecipeSerializer(CreateUpdateMixin, serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         """
-        Возвращает список ингредиентов к формату
-        сериализатора модели ингредиентов
         Декодирует картинку из base64, отдает путь в image модели.
         """
         internal_data = data

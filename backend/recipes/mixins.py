@@ -32,6 +32,12 @@ class SimpleRecipeSerializer(serializers.ModelSerializer):
 
 
 class CreateUpdateMixin:
+    """
+    Миксины для модели рецептов Реализует методы update(), create()
+    Валидирует поля модели без учета поля ингредиента.
+    Ингредиент валидируется в методах update(), create(),
+    т.к. вложеной модели нужен инстанс рецепта.
+    """
 
     def validate(self, data):
         ingredients = data.pop('ingredients')
@@ -45,6 +51,8 @@ class CreateUpdateMixin:
         """
         update для сохранения связанных записей
         Рецепт модифицируется, только при правильности ингедиентов
+        Влидируем ингредиенты. даляем старые, сохраняем новые,
+        обновляем основные поля модели рецепта
         """
         ingredients = []
         for ingredient in validated_data.pop('ingredients'):
