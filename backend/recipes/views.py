@@ -1,13 +1,13 @@
+import io
+
 from django.contrib.auth import get_user_model
-from django.core.files.temp import NamedTemporaryFile
 from django.db.models import Sum
+from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from gunicorn.http.wsgi import FileWrapper
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
-from rest_framework.response import Response
 
 from cart.models import Cart
 from cart.serializers import CartRecipeSerializer
@@ -83,11 +83,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .values('ingredient__name', 'ingredient__measurement_unit')
             .annotate(total_amount=Sum('amount'))
         )
-        tempfile = NamedTemporaryFile(suffix='.pdf')
-        get_invoice(ingredients, tempfile)
-        wrapper = FileWrapper(tempfile)
-        response = Response(wrapper, content_type='application/pdf')
-        return response
+        buffer = io.BytesIO
+        get_invoice(ingredients, buffer)
+        buffer.seek(0)
+
+        return FileResponse(buffer, as_attachment=True, filename='cart.pdf')
 
 
 class TagViewSet(viewsets.ModelViewSet):
