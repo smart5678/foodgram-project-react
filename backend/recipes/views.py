@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
+from django.core.files.temp import NamedTemporaryFile
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
+from gunicorn.http.wsgi import FileWrapper
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
@@ -9,6 +11,7 @@ from rest_framework.response import Response
 
 from cart.models import Cart
 from cart.serializers import CartRecipeSerializer
+from cart.temprecipe import get_invoice
 from recipes.paginator import ResultsSetPagination
 from social.models import Favorite
 from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
@@ -80,8 +83,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .values('ingredient__name', 'ingredient__measurement_unit')
             .annotate(total_amount=Sum('amount'))
         )
-
-        return Response(ingredients)
+        tempfile = NamedTemporaryFile(suffix='.pdf')
+        get_invoice(ingredients, tempfile)
+        wrapper = FileWrapper(tempfile)
+        response = Response(wrapper, content_type='mime_type')
+        return response
 
 
 class TagViewSet(viewsets.ModelViewSet):
