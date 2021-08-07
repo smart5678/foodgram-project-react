@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from recipes.mixins import SimpleRecipeSerializer
 from recipes.models import Recipe
-from recipes.serializers import SimpleRecipeSerializer
 from social.models import Favorite, Follow
 from users.serializers import UserSerializer
 
