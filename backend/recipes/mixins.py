@@ -2,7 +2,93 @@ from django.db.models import Model
 from rest_framework import status, serializers
 from rest_framework.response import Response
 
+from recipes.models import RecipeIngredient, Recipe
 
+
+class RecipeIngredientsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RecipeIngredient
+        fields = '__all__'
+
+
+class SimpleRecipeSerializer(serializers.ModelSerializer):
+    """
+    Используется для спсиков избранного и корзины
+    С его помощью валидируются несвязанные поля.
+    """
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+            'author',
+            'text',
+            'tags'
+        )
+
+
+class CreateUpdateMixin:
+
+    def validate(self, data):
+        ingredients = data.pop('ingredients')
+        recipe_serializer = SimpleRecipeSerializer(data=data, partial=True)
+        recipe_serializer.is_valid(raise_exception=True)
+        validated_data = recipe_serializer.validated_data
+        validated_data['ingredients'] = ingredients
+        return validated_data
+
+    def update(self, instance, validated_data):
+        """
+        update для сохранения связанных записей
+        Рецепт модифицируется, только при правильности ингедиентов
+        """
+        ingredients = []
+        for ingredient in validated_data.pop('ingredients'):
+            ingredients.append({
+                'recipe': self.instance.id or None,
+                'ingredient': ingredient['id'],
+                'amount': ingredient['amount'],
+            })
+        ingredient_serializer = RecipeIngredientsSerializer(
+            data=ingredients,
+            many=True,
+        )
+        ingredient_serializer.is_valid(raise_exception=True)
+        self.instance.ingredients.all().delete()
+        ingredient_serializer.save()
+        super().update(instance, validated_data)
+        return instance
+
+    def create(self, validated_data):
+        """
+        create для сохранения связанных записей
+        Рецепт содается, только при правильности ингедиентов
+        """
+        ingredients = validated_data.pop('ingredients')
+        recipe_serializer = SimpleRecipeSerializer(data=validated_data, partial=True)
+        validated_data['author'] = self.context['request'].user
+        recipe = recipe_serializer.create(validated_data)
+
+        ingredient_list = []
+        for ingredient in ingredients:
+            ingredient_list.append({
+                'recipe': recipe.id,
+                'ingredient': ingredient['id'],
+                'amount': ingredient['amount'],
+            })
+        ingredient_serializer = RecipeIngredientsSerializer(
+            data=ingredient_list,
+            many=True,
+        )
+        if not ingredient_serializer.is_valid():
+            recipe.delete()
+            raise serializers.ValidationError(ingredient_serializer.errors)
+        ingredient_serializer.save()
+        return recipe
 
 
 def set_action(
@@ -31,74 +117,3 @@ def set_action(
                 data={'error': f'В {acted_model.__name__} связи нет'},
             )
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class CreateUpdateRecipeMixin:
-
-    def update(self, instance, validated_data):
-        """
-        update для сохранения связанных записей
-        Рецепт модифицируется, только при правильности ингедиентов
-        """
-        from recipes.serializers import RecipeIngredientsSerializer, \
-            SimpleRecipeSerializer
-        ingredient_list = []
-        for ingredient in validated_data.pop('ingredients'):
-            ingredient_list.append({
-                'recipe': self.instance.id,
-                'ingredient': ingredient['ingredient']['id'],
-                'amount': ingredient['ingredient']['amount'],
-            })
-        ingredient_serializer = RecipeIngredientsSerializer(
-            data=ingredient_list,
-            many=True
-        )
-        recipe_serializer = SimpleRecipeSerializer(
-            data=validated_data,
-            partial=True
-        )
-        valid = ingredient_serializer.is_valid() & recipe_serializer.is_valid()
-        if valid:
-            super().update(instance, validated_data)
-            self.instance.ingredients.all().delete()
-            ingredient_serializer.save()
-        else:
-            raise serializers.ValidationError(
-                detail=(ingredient_serializer.errors, recipe_serializer.errors)
-            )
-        return instance
-
-    def create(self, validated_data):
-        """
-        create для сохранения связанных записей
-        Рецепт содается, только при правильности ингедиентов
-        """
-        from recipes.serializers import RecipeIngredientsSerializer, \
-            SimpleRecipeSerializer
-        ingredients = validated_data.pop('ingredients')
-        recipe_serializer = SimpleRecipeSerializer(
-            data=validated_data, partial=True
-        )
-        if recipe_serializer.is_valid():
-            recipe_serializer.save(author=self.context['request'].user)
-        else:
-            raise serializers.ValidationError(detail=recipe_serializer.errors)
-        recipe = recipe_serializer.instance
-        ingredient_list = []
-        for ingredient in ingredients:
-            ingredient_list.append({
-                'recipe': recipe.id,
-                'ingredient': ingredient['ingredient']['id'],
-                'amount': ingredient['ingredient']['amount'],
-            })
-        ingredient_serializer = RecipeIngredientsSerializer(
-            data=ingredient_list, many=True
-        )
-        if ingredient_serializer.is_valid():
-            ingredient_serializer.save()
-            return recipe
-        else:
-            recipe.delete()
-            raise serializers.ValidationError(
-                detail=ingredient_serializer.errors
-            )

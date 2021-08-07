@@ -4,8 +4,7 @@ from django.core.files.base import ContentFile
 from rest_framework import serializers
 
 from users.serializers import UserSerializer
-from .mixins import CreateUpdateRecipeMixin
-
+from .mixins import CreateUpdateMixin
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
@@ -43,10 +42,9 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RecipeSerializer(CreateUpdateRecipeMixin, serializers.ModelSerializer):
+class RecipeSerializer(CreateUpdateMixin, serializers.ModelSerializer):
     """
     В update и create дополнительно обновляются связанные модели ингредиентов.
-    Create, Update вынесены в CreateUpdateRecipeMixin
     """
     author = UserSerializer()
     tags = TagSerializer(many=True, read_only=True, partial=False)
@@ -75,6 +73,7 @@ class RecipeSerializer(CreateUpdateRecipeMixin, serializers.ModelSerializer):
         return (user.is_authenticated
                 and user.buyer.filter(recipe=recipe).exists())
 
+
     def to_internal_value(self, data):
         """
         Возвращает список ингредиентов к формату
@@ -92,29 +91,6 @@ class RecipeSerializer(CreateUpdateRecipeMixin, serializers.ModelSerializer):
             )
             internal_data['image'] = image_file
 
-        ingredients = data.pop('ingredients')
-        ingredients_internal = []
-        for ingredient in ingredients:
-            ingredients_internal.append({"ingredient": ingredient})
-        internal_data['ingredients'] = ingredients_internal
-
         return internal_data
 
 
-class SimpleRecipeSerializer(UserSerializer):
-    """
-    Используется для спсиков избранного и корзины
-    С его помощью валидируются несвязанные поля.
-    """
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time',
-            'author',
-            'text',
-            'tags'
-        )
