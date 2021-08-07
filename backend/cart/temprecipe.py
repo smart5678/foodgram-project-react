@@ -5,7 +5,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
-HEADER = [['#', 'Ингредиент', 'Кол-во', 'Ед.изм.']]
+HEADER = ['#', 'Ингредиент', 'Кол-во', 'Ед.изм.']
 
 
 def get_invoice(ingredients, tempfile):
