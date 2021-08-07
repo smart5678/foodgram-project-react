@@ -1,8 +1,6 @@
-import io
-
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from django.http import FileResponse
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -83,11 +81,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .values('ingredient__name', 'ingredient__measurement_unit')
             .annotate(total_amount=Sum('amount'))
         )
-        buffer = io.BytesIO
-        get_invoice(ingredients, buffer)
-        buffer.seek(0)
-
-        return FileResponse(buffer, as_attachment=True, filename='cart.pdf')
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = ('attachment;'
+                                           ' filename="cart.pdf"')
+        get_invoice(ingredients, response)
+        return response
 
 
 class TagViewSet(viewsets.ModelViewSet):

@@ -8,7 +8,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 HEADER = ['#', 'Ингредиент', 'Кол-во', 'Ед.изм.']
 
 
-def get_invoice(ingredients, buffer):
+def get_invoice(ingredients, file):
     data = [HEADER]
     for row, ingredient in enumerate(ingredients):
         data.append([
@@ -18,7 +18,7 @@ def get_invoice(ingredients, buffer):
             ingredient['ingredient__measurement_unit']
         ])
 
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    doc = SimpleDocTemplate(file, pagesize=A4)
     elements = []
     pdfmetrics.registerFont(TTFont('DejaVuSerif', 'DejaVuSerif.ttf'))
     table = Table(
