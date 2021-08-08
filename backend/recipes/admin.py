@@ -1,5 +1,3 @@
-from django.contrib import admin
-
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
@@ -47,13 +45,13 @@ class RecipeAdmin(admin.ModelAdmin):
     Конфигурация отображения модели Recipe в Админ.панели
     """
     fields = (
-        ('name', 'author', 'created_at'),
+        ('name', 'author', 'created_at', 'favorite_count'),
         'tags',
         'image',
         'cooking_time',
         'text',
     )
-    list_display = ('pk', 'name', 'author')
+    list_display = ('pk', 'name', 'author', 'favorite_count')
     list_filter = ('author', 'name', 'tags')
     inlines = [IngredientInline]
     empty_value_display = '-пусто-'
