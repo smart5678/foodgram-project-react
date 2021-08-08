@@ -47,6 +47,11 @@ class CreateUpdateMixin:
                 raise serializers.ValidationError(
                     {'ingredients': ['Ингредиенты дублируются']}
                 )
+            if (isinstance(ingredient['amount'], int)
+                    and ingredient['amount'] < 0):
+                raise serializers.ValidationError(
+                    {'ingredients': ['Введите правльное число']}
+                )
             ingredients_id.append(ingredient['id'])
         recipe_serializer = SimpleRecipeSerializer(data=data, partial=True)
         recipe_serializer.is_valid(raise_exception=True)
