@@ -60,7 +60,7 @@ class Recipe(models.Model):
     @property
     @admin.display(description='Добавлено в избранное')
     def favorite_count(self, instance):
-        return Recipe.objects.all().count()
+        return Recipe.objects.count()
         # return Recipe.objects.filter(favorited=self.id).count()
 
     class Meta:
