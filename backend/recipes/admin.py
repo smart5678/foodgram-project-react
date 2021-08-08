@@ -20,8 +20,8 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'measurement_unit')
     list_editable = ('measurement_unit',)
     fields = (('name', 'measurement_unit'),)
-    list_filter = ('name',)
     empty_value_display = '-пусто-'
+    search_fields = ['name']
 
 
 @admin.register(Tag)
@@ -47,13 +47,13 @@ class RecipeAdmin(admin.ModelAdmin):
     Конфигурация отображения модели Recipe в Админ.панели
     """
     fields = (
-        ('name', 'author', 'created_at'),
+        ('name', 'author', 'created_at', ),
         'tags',
         'image',
         'cooking_time',
         'text',
     )
-    list_display = ('pk', 'name', 'author')
+    list_display = ('pk', 'name', 'author', 'favorite_count')
     list_filter = ('author', 'name', 'tags')
     inlines = [IngredientInline]
     empty_value_display = '-пусто-'
