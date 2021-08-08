@@ -54,8 +54,7 @@ class Recipe(models.Model):
         ],
     )
     image = models.ImageField(upload_to='images/', blank=False, null=True)
-    created_at = models.DateTimeField()
-#    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['created_at']

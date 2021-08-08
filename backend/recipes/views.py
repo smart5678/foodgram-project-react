@@ -34,7 +34,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Recipe.objects.prefetch_related(
         'ingredients__ingredient'
-    ).all().order_by('created_at')
+    ).all().order_by('-created_at')
     filter_backends = [DjangoFilterBackend, RecipeFilterBackend]
     filterset_fields = ['author', ]
 
