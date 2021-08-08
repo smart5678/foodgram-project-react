@@ -57,3 +57,4 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('author', 'name', 'tags')
     inlines = [IngredientInline]
     empty_value_display = '-пусто-'
+    list_display_links = ('name', 'pk')
