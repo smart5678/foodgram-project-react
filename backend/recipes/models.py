@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -55,6 +56,12 @@ class Recipe(models.Model):
     )
     image = models.ImageField(upload_to='images/', blank=False, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    @admin.display(description='Добавлено в избранное')
+    def favorite_count(self, instance):
+        return Recipe.objects.count()
+        # return Recipe.objects.filter(favorited=self.id).count()
 
     class Meta:
         ordering = ['created_at']
