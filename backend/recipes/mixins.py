@@ -1,5 +1,6 @@
 from django.db.models import Model
 from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from recipes.models import Recipe, RecipeIngredient
@@ -42,19 +43,23 @@ class CreateUpdateMixin:
     def validate(self, data):
         ingredients = data.pop('ingredients')
         ingredients_id = []
+        errors = []
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_id:
-                raise serializers.ValidationError(
-                    {'ingredients': ['Ингредиенты дублируются']}
-                )
+                errors.append({'ingredients': ['Ингредиенты дублируются']})
             if (not isinstance(ingredient['amount'], int)
                     or ingredient['amount'] < 0):
-                raise serializers.ValidationError(
-                    {'ingredients': ['Введите правльное число']}
-                )
+                errors.append({'ingredients': ['Введите правльное число']})
             ingredients_id.append(ingredient['id'])
+        if errors:
+            raise serializers.ValidationError(errors)
         recipe_serializer = SimpleRecipeSerializer(data=data, partial=True)
-        recipe_serializer.is_valid(raise_exception=True)
+        try:
+            recipe_serializer.is_valid(raise_exception=True)
+        except ValidationError as exc:
+            raise ValidationError(
+                {key: get_error_detail(exc)}
+            )
         validated_data = recipe_serializer.validated_data
         validated_data['ingredients'] = ingredients
         return validated_data
