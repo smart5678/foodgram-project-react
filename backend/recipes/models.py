@@ -60,6 +60,7 @@ class Recipe(models.Model):
         ordering = ['created_at']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        readonly_fields = ['created_at']
 
     def __str__(self):
         return self.name
