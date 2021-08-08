@@ -48,7 +48,7 @@ class CreateUpdateMixin:
                     {'ingredients': ['Ингредиенты дублируются']}
                 )
             if (isinstance(ingredient['amount'], int)
-                    and ingredient['amount'] < 0):
+                    or ingredient['amount'] < 0):
                 raise serializers.ValidationError(
                     {'ingredients': ['Введите правльное число']}
                 )
