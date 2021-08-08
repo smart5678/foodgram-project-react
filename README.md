@@ -25,4 +25,6 @@
 
 ### You can test API [just-eat-it.ru/api](https://just-eat-it.ru/api/) and site [just-eat-it.ru](https://just-eat-it.ru/)
 
+Логин админа: `umssml@mail.ru`, пароль: `ums`
+
 ![foodgram workflow](https://github.com/smart5678/foodgram-project-react/actions/workflows/main.yml/badge.svg)
