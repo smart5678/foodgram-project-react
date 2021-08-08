@@ -52,14 +52,10 @@ class CreateUpdateMixin:
         ingredient_errors = []
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_id:
-                ingredient_errors.append(
-                    {'ingredient': ['Ингредиенты дублируются']}
-                )
+                ingredient_errors.append('Ингредиенты дублируются')
             if (not isinstance(ingredient['amount'], int)
                     or ingredient['amount'] < 0):
-                ingredient_errors.append(
-                    {'ingredient': ['Введите правльное число']}
-                )
+                ingredient_errors.append('Введите правльное число')
             ingredients_id.append(ingredient['id'])
         if ingredient_errors:
             errors['ingredients'] = ingredient_errors
