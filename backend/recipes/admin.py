@@ -39,6 +39,7 @@ class IngredientInline(admin.TabularInline):
     Инлайн редактирование игредиентов в рецепте
     """
     model = RecipeIngredient
+    search_fields = ['name']
 
 
 @admin.register(Recipe)
