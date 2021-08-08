@@ -11,6 +11,9 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
         model = RecipeIngredient
         fields = '__all__'
 
+    def validate(self, data):
+        return data
+
 
 class SimpleRecipeSerializer(serializers.ModelSerializer):
     """
