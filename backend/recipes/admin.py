@@ -20,8 +20,8 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'measurement_unit')
     list_editable = ('measurement_unit',)
     fields = (('name', 'measurement_unit'),)
-    list_filter = ('name',)
     empty_value_display = '-пусто-'
+    search_fields = ['name']
 
 
 @admin.register(Tag)
@@ -39,7 +39,6 @@ class IngredientInline(admin.TabularInline):
     Инлайн редактирование игредиентов в рецепте
     """
     model = RecipeIngredient
-    search_fields = ['name']
 
 
 @admin.register(Recipe)
