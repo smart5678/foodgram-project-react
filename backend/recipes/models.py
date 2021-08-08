@@ -54,9 +54,10 @@ class Recipe(models.Model):
         ],
     )
     image = models.ImageField(upload_to='images/', blank=False, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['created_at']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 

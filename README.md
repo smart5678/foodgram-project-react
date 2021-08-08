@@ -21,8 +21,8 @@
 Инструкция в [workflow](/WORKFLOW.md)
 
 ### Ресурсы API
-Ресурсы описаны в [redoc](http://justeatit.co.vu/api/docs/): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
+Ресурсы описаны в [redoc](https://just-eat-it.ru/api/docs/): указаны эндпойнты, разрешённые типы запросов, права доступа и дополнительные параметры, если это необходимо.
 
-### You can test API [justeatit.co.vu/api](http://justeatit.co.vu/api/) and site [justeatit.co.vu](http://justeatit.co.vu/)
+### You can test API [just-eat-it.ru/api](https://just-eat-it.ru/api/) and site [just-eat-it.ru](https://just-eat-it.ru/)
 
 ![foodgram workflow](https://github.com/smart5678/foodgram-project-react/actions/workflows/main.yml/badge.svg)
