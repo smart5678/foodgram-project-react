@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='RecipeIngredients',
+            name='RecipeIngredient',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('amount', models.IntegerField(verbose_name='Количество в рецепте')),
@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name='recipes', to='recipes.Tag', verbose_name='Тэги'),
         ),
         migrations.AddConstraint(
-            model_name='recipeingredients',
+            model_name='recipeingredient',
             constraint=models.UniqueConstraint(fields=('recipe', 'ingredient'), name='recipe-ingredients'),
         ),
     ]

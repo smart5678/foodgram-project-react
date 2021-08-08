@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             field=models.IntegerField(validators=[django.core.validators.MinValueValidator(1, 'Быстрее не получится')], verbose_name='Время приготовления (в минутах)'),
         ),
         migrations.AlterField(
-            model_name='recipeingredients',
+            model_name='recipeingredient',
             name='amount',
             field=models.IntegerField(validators=[django.core.validators.MinValueValidator(1, 'Не надо жадничать')], verbose_name='Количество в рецепте'),
         ),
