@@ -47,7 +47,7 @@ class RecipeAdmin(admin.ModelAdmin):
     Конфигурация отображения модели Recipe в Админ.панели
     """
     fields = (
-        ('name', 'author', 'created_at', 'favorite_count'),
+        ('name', 'author', 'created_at'),
         'tags',
         'image',
         'cooking_time',
