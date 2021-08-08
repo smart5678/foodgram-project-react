@@ -42,8 +42,10 @@ class CreateUpdateMixin:
     def validate(self, data):
         ingredients = data.pop('ingredients')
         ingredients_id = []
+        errors = []
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_id:
+                errors.append({'ingredients': ['Ингредиенты дублируются']})
                 raise serializers.ValidationError({'ingredients': ['Ингредиенты дублируются']})
             ingredients_id.append(ingredient['id'])
         recipe_serializer = SimpleRecipeSerializer(data=data, partial=True)
