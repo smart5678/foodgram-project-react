@@ -58,3 +58,4 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = [IngredientInline]
     empty_value_display = '-пусто-'
     list_display_links = ('name', 'pk')
+    readonly_fields = ['created_at']
