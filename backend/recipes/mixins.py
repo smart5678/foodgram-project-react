@@ -47,7 +47,7 @@ class CreateUpdateMixin:
                 raise serializers.ValidationError(
                     {'ingredients': ['Ингредиенты дублируются']}
                 )
-            if (isinstance(ingredient['amount'], int)
+            if (not isinstance(ingredient['amount'], int)
                     or ingredient['amount'] < 0):
                 raise serializers.ValidationError(
                     {'ingredients': ['Введите правльное число']}
