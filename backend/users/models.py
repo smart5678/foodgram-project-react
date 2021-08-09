@@ -21,7 +21,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=Role.USER,
     )
     username = models.CharField('Имя пользователя', max_length=150,
-                                blank=False, unique=True)
+                                unique=True)
     first_name = models.CharField('Имя', max_length=150, blank=True)
     last_name = models.CharField('Фамилия', max_length=150, blank=True)
     email = models.EmailField('email address', unique=True)
