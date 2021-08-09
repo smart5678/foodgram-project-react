@@ -1,4 +1,3 @@
-from django.db.models import Model
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -148,7 +147,7 @@ def set_action(
         try:
             filter = {follow: request.user, followed + '_id': recipe_pk}
             acted_model.objects.get(**filter).delete()
-        except Model.DoesNotExist:
+        except acted_model.DoesNotExist:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
                 data={'error': f'В {acted_model.__name__} связи нет'},

@@ -61,6 +61,11 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
+    @property
+    @admin.display(description='Добавлено в избранное')
+    def favorite_count(self):
+        return self.favorited.count()
+
     def __str__(self):
         return self.name
 
