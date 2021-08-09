@@ -7,9 +7,11 @@ from social.models import Favorite, Follow
 class FollowingAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'author')
     empty_value_display = '-пусто-'
+    list_display_links = ('pk', 'user',)
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'favorite_recipe')
     empty_value_display = '-пусто-'
+    list_display_links = ('pk', 'user',)

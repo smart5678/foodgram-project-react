@@ -8,7 +8,8 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'ingredient', 'amount')
     list_filter = ('recipe', )
     fields = (('recipe',), ('ingredient', 'amount'))
-    list_editable = ('ingredient', 'amount', )
+    list_editable = ('amount', )
+    list_display_links = ('recipe', 'pk')
     empty_value_display = '-пусто-'
 
 
@@ -22,6 +23,7 @@ class IngredientAdmin(admin.ModelAdmin):
     fields = (('name', 'measurement_unit'),)
     empty_value_display = '-пусто-'
     search_fields = ['name']
+    list_display_links = ('name', 'pk')
 
 
 @admin.register(Tag)
@@ -32,6 +34,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'slug', 'color')
     list_editable = ('slug', 'color')
     empty_value_display = '-пусто-'
+    list_display_links = ('name', 'pk')
 
 
 class IngredientInline(admin.TabularInline):
