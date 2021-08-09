@@ -14,7 +14,7 @@ from social.models import Favorite
 from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
 
 from .backends import IngredientFilterBackend, RecipeFilterBackend
-from .mixins import set_action, get_invoice
+from .mixins import get_invoice, set_action
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 

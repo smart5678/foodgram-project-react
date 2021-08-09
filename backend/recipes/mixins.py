@@ -1,4 +1,3 @@
-from django.db.models import Model
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
