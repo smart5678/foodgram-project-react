@@ -12,7 +12,7 @@ class Tag(models.Model):
     """
     name = models.CharField('Название', max_length=200, unique=True)
     color = models.CharField('Цвет в HEX', max_length=200, unique=True)
-    slug = models.SlugField(unique=True,)
+    slug = models.SlugField('Имя для ссылки', unique=True,)
 
     class Meta:
         ordering = ['slug']
@@ -53,8 +53,8 @@ class Recipe(models.Model):
             MinValueValidator(1, 'Быстрее не получится'),
         ],
     )
-    image = models.ImageField(upload_to='images/', null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField('Фото рецепта', upload_to='images/', null=True)
+    created_at = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     @property
     @admin.display(description='Добавлено в избранное')
