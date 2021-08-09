@@ -1,9 +1,18 @@
 from django.db.models import Model
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from recipes.models import Recipe, RecipeIngredient
+
+# Заголовок таблицы скачанных ингредиентов
+HEADER = ['#', 'Ингредиент', 'Кол-во', 'Ед.изм.']
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
@@ -146,3 +155,32 @@ def set_action(
                 data={'error': f'В {acted_model.__name__} связи нет'},
             )
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def get_invoice(ingredients, file):
+    data = [HEADER]
+    for row, ingredient in enumerate(ingredients):
+        data.append([
+            row + 1,
+            ingredient['ingredient__name'],
+            ingredient['total_amount'],
+            ingredient['ingredient__measurement_unit']
+        ])
+
+    doc = SimpleDocTemplate(file, pagesize=A4)
+    elements = []
+    pdfmetrics.registerFont(TTFont('DejaVuSerif', 'DejaVuSerif.ttf'))
+    table = Table(
+        data,
+        [1 * cm, 12 * cm, 2 * cm, 4 * cm],
+        len(data) * [1 * cm])
+    table.setStyle(
+        TableStyle([('INNERGRID', (0, 0), (-1, -1), 0.02 * cm, colors.black),
+                    ('BOX', (0, 0), (-1, -1), 0.035 * cm, colors.black),
+                    ('FONT', (0, 0), (-1, -1), 'DejaVuSerif', 14),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('ALIGN', (1, 1), (1, -1), 'LEFT'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ]))
+    elements.append(table)
+    doc.build(elements)
