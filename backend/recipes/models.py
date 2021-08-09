@@ -45,23 +45,16 @@ class Recipe(models.Model):
         verbose_name='Тэги',
         related_name="recipes",
     )
-    name = models.CharField('Название', max_length=200, blank=False)
-    text = models.TextField('Описание', blank=False)
+    name = models.CharField('Название', max_length=200)
+    text = models.TextField('Описание')
     cooking_time = models.IntegerField(
         'Время приготовления (в минутах)',
         validators=[
             MinValueValidator(1, 'Быстрее не получится'),
-            # integer_validator
         ],
     )
-    image = models.ImageField(upload_to='images/', blank=False, null=True)
+    image = models.ImageField(upload_to='images/', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
-    @property
-    @admin.display(description='Добавлено в избранное')
-    def favorite_count(self):
-        return self.favorited.count()
-        # return RecipeIngredient.objects.filter(recipe_id=self.id).count()
 
     class Meta:
         ordering = ['created_at']

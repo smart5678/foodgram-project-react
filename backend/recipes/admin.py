@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-from .forms import CustomRecipeForm
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
@@ -47,14 +46,13 @@ class RecipeAdmin(admin.ModelAdmin):
     """
     Конфигурация отображения модели Recipe в Админ.панели
     """
-    # fields = (
-    #     ('name', 'author', 'created_at', ),
-    #     'tags',
-    #     'image',
-    #     'cooking_time',
-    #     'text',
-    # )
-    form = CustomRecipeForm
+    fields = (
+        ('name', 'author', 'created_at'),
+        'tags',
+        'image',
+        'cooking_time',
+        'text',
+    )
     list_display = ('pk', 'name', 'author', 'favorite_count')
     list_filter = ('author', 'name', 'tags')
     inlines = [IngredientInline]

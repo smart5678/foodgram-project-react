@@ -9,13 +9,12 @@ from rest_framework.permissions import (IsAuthenticated,
 
 from cart.models import Cart
 from cart.serializers import CartRecipeSerializer
-from cart.temprecipe import get_invoice
 from recipes.paginator import ResultsSetPagination
 from social.models import Favorite
 from social.serializers import FavoriteRecipeSerializer, SimpleRecipeSerializer
 
 from .backends import IngredientFilterBackend, RecipeFilterBackend
-from .mixins import set_action
+from .mixins import set_action, get_invoice
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 
