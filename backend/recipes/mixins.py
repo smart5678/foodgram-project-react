@@ -5,7 +5,6 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from recipes.models import Recipe, RecipeIngredient
@@ -14,7 +13,18 @@ from recipes.models import Recipe, RecipeIngredient
 HEADER = ['#', 'Ингредиент', 'Кол-во', 'Ед.изм.']
 
 
-class RecipeIngredientsSerializer(serializers.ModelSerializer):
+class IngredientFieldSetSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)
+        super(IngredientFieldSetSerializer, self).__init__(*args, **kwargs)
+        if fields is not None:
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
+class RecipeIngredientsSerializer(IngredientFieldSetSerializer):
 
     class Meta:
         model = RecipeIngredient
@@ -51,13 +61,14 @@ class CreateUpdateMixin:
     def validate(self, data):
         ingredients = data.pop('ingredients')
         ingredients_id = []
+        ingredient_errors = []
         errors = {}
         recipe_serializer = SimpleRecipeSerializer(data=data, partial=True)
         try:
             recipe_serializer.is_valid(raise_exception=True)
         except serializers.ValidationError as exc:
             errors = {**exc.detail}
-        ingredient_errors = []
+
         ingredient_serializer = RecipeIngredientsSerializer(
             data=ingredients,
             many=True,
@@ -67,11 +78,14 @@ class CreateUpdateMixin:
             ingredient_serializer.is_valid(raise_exception=True)
         except serializers.ValidationError as exc:
             ingredient_errors.extend(exc.detail)
-
+        # validate unique ingredient before affecting the model
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_id:
-                ingredient_errors.append({'ingredient': 'Ингредиенты дублируются'})
+                ingredient_errors.append(
+                    {'ingredient': 'Ингредиенты дублируются'}
+                )
             ingredients_id.append(ingredient['id'])
+
         if ingredient_errors:
             errors['ingredients'] = ingredient_errors
         if errors:
