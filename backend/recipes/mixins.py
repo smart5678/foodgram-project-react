@@ -60,8 +60,6 @@ class CreateUpdateMixin:
 
     def validate(self, data):
         ingredients = data.pop('ingredients')
-        ingredients_id = []
-        ingredient_errors = []
         errors = {}
         recipe_serializer = SimpleRecipeSerializer(data=data, partial=True)
         try:
@@ -69,16 +67,18 @@ class CreateUpdateMixin:
         except serializers.ValidationError as exc:
             errors = {**exc.detail}
 
-        ingredient_serializer = RecipeIngredientsSerializer(
+        ingredient_errors = []
+        amount_serializer = RecipeIngredientsSerializer(
             data=ingredients,
             many=True,
             fields=('amount',)
         )
         try:
-            ingredient_serializer.is_valid(raise_exception=True)
+            amount_serializer.is_valid(raise_exception=True)
         except serializers.ValidationError as exc:
             ingredient_errors.extend(exc.detail)
         # validate unique ingredient before affecting the model
+        ingredients_id = []
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_id:
                 ingredient_errors.append(
