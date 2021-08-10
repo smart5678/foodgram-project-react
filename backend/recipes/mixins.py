@@ -75,8 +75,9 @@ class CreateUpdateMixin:
         )
         try:
             amount_serializer.is_valid(raise_exception=True)
-        except serializers.ValidationError as exc:
-            ingredient_errors = [error['amount'] for error in amount_serializer.errors if error]
+        except serializers.ValidationError:
+            ingredient_errors = [error['amount'] for
+                                 error in amount_serializer.errors if error]
         # validate unique ingredient before affecting the model
         ingredients_id = []
         for ingredient in ingredients:
