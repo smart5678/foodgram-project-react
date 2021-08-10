@@ -48,7 +48,6 @@ class CreateUpdateMixin:
     т.к. вложеной модели нужен инстанс рецепта.
     """
 
-
     def validate(self, data):
         ingredients = data.pop('ingredients')
         ingredients_id = []
@@ -59,7 +58,11 @@ class CreateUpdateMixin:
         except serializers.ValidationError as exc:
             errors = {**exc.detail}
         ingredient_errors = []
-        ingredient_serializer = RecipeIngredientsSerializer(data=ingredients, many=True, fields=('amount',))
+        ingredient_serializer = RecipeIngredientsSerializer(
+            data=ingredients,
+            many=True,
+            fields=('amount',)
+        )
         try:
             ingredient_serializer.is_valid(raise_exception=True)
         except serializers.ValidationError as exc:
