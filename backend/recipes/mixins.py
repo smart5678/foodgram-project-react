@@ -76,14 +76,12 @@ class CreateUpdateMixin:
         try:
             amount_serializer.is_valid(raise_exception=True)
         except serializers.ValidationError as exc:
-            ingredient_errors.extend(exc.detail)
+            ingredient_errors = [error['amount'] for error in amount_serializer.errors if error]
         # validate unique ingredient before affecting the model
         ingredients_id = []
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_id:
-                ingredient_errors.append(
-                    {'ingredient': 'Ингредиенты дублируются'}
-                )
+                ingredient_errors.append('Ингредиенты дублируются')
             ingredients_id.append(ingredient['id'])
 
         if ingredient_errors:
