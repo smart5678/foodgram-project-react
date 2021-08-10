@@ -48,6 +48,7 @@ class CreateUpdateMixin:
     т.к. вложеной модели нужен инстанс рецепта.
     """
 
+
     def validate(self, data):
         ingredients = data.pop('ingredients')
         ingredients_id = []
@@ -55,15 +56,18 @@ class CreateUpdateMixin:
         recipe_serializer = SimpleRecipeSerializer(data=data, partial=True)
         try:
             recipe_serializer.is_valid(raise_exception=True)
-        except ValidationError as exc:
+        except serializers.ValidationError as exc:
             errors = {**exc.detail}
         ingredient_errors = []
+        ingredient_serializer = RecipeIngredientsSerializer(data=ingredients, many=True, fields=('amount',))
+        try:
+            ingredient_serializer.is_valid(raise_exception=True)
+        except serializers.ValidationError as exc:
+            ingredient_errors.extend(exc.detail)
+
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_id:
-                ingredient_errors.append('Ингредиенты дублируются')
-            if (not isinstance(ingredient['amount'], int)
-                    or ingredient['amount'] < 0):
-                ingredient_errors.append('Введите правильное число')
+                ingredient_errors.append({'ingredient': 'Ингредиенты дублируются'})
             ingredients_id.append(ingredient['id'])
         if ingredient_errors:
             errors['ingredients'] = ingredient_errors
