@@ -4,6 +4,7 @@ volumes:
   postgres_data:
   static_value:
   media_value:
+  nginx_log:
 
 services:
   db:
@@ -30,7 +31,8 @@ services:
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
       - static_value:/usr/share/nginx/html/api_static/
-      - media_value:/usr/share/nginx/html/media/      
+      - media_value:/usr/share/nginx/html/media/
+      - nginx_log:/var/log/nginx
     depends_on:
       - web
 
@@ -43,3 +45,20 @@ services:
       - db
     env_file:
       - ../backend/.env
+
+  clickhouse:
+    image: mintance/nginx-clickhouse
+    ports:
+      - 8123:8123
+    volumes:
+      - nginx_log:/logs
+      - config:./
+    depends_on:
+      - nginx
+
+  grafana:
+    image: grafana/grafana:6.5.0
+    ports:
+      - 3000:3000
+    depends_on:
+      - clickhouse
