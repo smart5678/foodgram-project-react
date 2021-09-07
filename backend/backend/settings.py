@@ -4,7 +4,7 @@ AUTH_USER_MODEL = 'users.User'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'django-insecure-(@qc1evh1iu9t_7v_@pa4dlpq^j+)ggol@=*dqkdvw)6#@+gzy'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = False
 
