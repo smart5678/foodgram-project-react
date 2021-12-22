@@ -263,7 +263,7 @@ function App() {
             />
           </Route>
           <Route path='/'>
-            {loggedIn ? <Redirect to='/recipes' /> : <Redirect to='/signin'/>}
+            {loggedIn ? <Redirect to='/recipes' /> : <Redirect to='/recipes' />}
           </Route>
         </Switch>
         <Footer />
